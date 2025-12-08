@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../styles/animations.css">
 </head>
 <body>
-    <!-- Navigation (same as main page) -->
+    <!-- Navigation (standardized) -->
     <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
         <div class="container">
             <a class="navbar-brand" href="../index.html">
@@ -19,24 +19,72 @@
                     <span>Career<span class="gradient-text">Lens</span></span>
                 </div>
             </a>
-            <!-- Navigation items -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="career-paths.html">Career Paths</a></li>
+                    <li class="nav-item"><a class="nav-link" href="job-portal.html">Job Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">Tools</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="salary-estimator.html">Salary Estimator</a></li>
+                            <li><a class="dropdown-item" href="interview-prep.html">Interview Prep</a></li>
+                            <li><a class="dropdown-item" href="skill-assessment.html">Skill Assessment</a></li>
+                            <li><a class="dropdown-item" href="cv-builder.html">CV Builder</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="dashboard.html" class="btn btn-gradient">My Profile</a>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="career-paths-page">
+    <div class="career-paths-page page-container">
+        <!-- Department Selector with 3D Cards -->
+        <section id="department-selector" class="section-light">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Select Your Department</h2>
+                    <p>Choose your academic background to get personalized guidance</p>
+                </div>
+                
+                <div class="department-filters">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="stem">STEM</button>
+                        <button class="filter-btn" data-filter="business">Business</button>
+                        <button class="filter-btn" data-filter="arts">Arts & Humanities</button>
+                    </div>
+                    
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="departmentSearch" placeholder="Search departments...">
+                    </div>
+                </div>
+                
+                <div class="row" id="departmentGrid">
+                    <!-- Departments loaded via JavaScript -->
+                </div>
+                
+                <div class="text-center mt-5">
+                    <button id="loadMoreDepartments" class="btn btn-outline-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Load More Departments
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <div class="container py-5">
             <!-- Page Header -->
-            <div class="page-header text-center mb-5">
+            <div class="page-header text-center mb-5" style="display: none;">
                 <h1 class="display-4 gradient-text">Explore Career Paths</h1>
                 <p class="lead">Discover detailed roadmaps for different career paths based on your department</p>
-            </div>
-
-            <!-- Department Selector -->
-            <div class="department-selector mb-5">
-                <h3 class="mb-4">Select Your Department</h3>
-                <div class="row" id="departmentCards">
-                    <!-- Loaded by JavaScript -->
-                </div>
             </div>
 
             <!-- Career Path Details -->
@@ -82,33 +130,32 @@
                 </div>
             </div>
 
-            <!-- Comparison Tool -->
-            <div class="comparison-tool mt-5">
-                <h3 class="mb-4">Compare Career Paths</h3>
-                <div class="row">
-                    <div class="col-md-6">
-                        <select class="form-select mb-3" id="comparePath1">
-                            <option>Select first career path</option>
-                        </select>
-                        <div id="compareDetails1"></div>
-                    </div>
-                    <div class="col-md-6">
-                        <select class="form-select mb-3" id="comparePath2">
-                            <option>Select second career path</option>
-                        </select>
-                        <div id="compareDetails2"></div>
-                    </div>
-                </div>
-                <div class="comparison-chart mt-4">
-                    <canvas id="comparisonChart"></canvas>
-                </div>
-            </div>
         </div>
     </div>
 
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/theme-manager.js"></script>
+    <script src="../scripts/navigation.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../scripts/dummy-data.js"></script>
+    <script>
+        // Override exploreDepartment to show career paths on this page
+        window.app = window.app || {};
+        window.app.exploreDepartment = function(deptId) {
+            if (window.careerPaths) {
+                window.careerPaths.selectDepartment(deptId);
+            }
+        };
+    </script>
+    <script src="../scripts/main.js"></script>
     <script>
         // Career Paths functionality
         class CareerPaths {
@@ -116,34 +163,54 @@
                 this.departments = window.appData?.departments || [];
                 this.selectedDepartment = null;
                 this.selectedPath = null;
+                this.selectedPath1 = null;
+                this.selectedPath2 = null;
+                this.comparisonChart = null;
                 
                 this.init();
             }
             
             init() {
-                this.loadDepartments();
+                // Override exploreDepartment after main.js loads
+                setTimeout(() => {
+                    if (window.app && window.app.exploreDepartment) {
+                        window.app.exploreDepartment = (deptId) => {
+                            this.selectDepartment(deptId);
+                        };
+                    }
+                }, 1000);
+                
+                // Check if department ID is in URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const departmentId = urlParams.get('department');
+                
+                if (departmentId) {
+                    // Wait for appData to load, then auto-select department
+                    const waitForData = () => {
+                        if (window.appData && window.appData.departments) {
+                            this.departments = window.appData.departments;
+                            const deptId = parseInt(departmentId);
+                            const department = this.departments.find(d => d.id === deptId);
+                            if (department) {
+                                this.selectedDepartment = department;
+                                this.showCareerPaths();
+                            }
+                        } else {
+                            setTimeout(waitForData, 100);
+                        }
+                    };
+                    waitForData();
+                }
+                
                 this.initEventListeners();
             }
             
-            loadDepartments() {
-                const container = document.getElementById('departmentCards');
-                if (!container) return;
+            selectDepartment(deptId) {
+                const department = window.appData?.departments?.find(d => d.id === deptId);
+                if (!department) return;
                 
-                container.innerHTML = this.departments.map(dept => `
-                    <div class="col-md-4 mb-4">
-                        <div class="department-card" onclick="careerPaths.selectDepartment(${dept.id})">
-                            <div class="card-body">
-                                <i class="${dept.icon} fa-3x mb-3" style="color: ${dept.color}"></i>
-                                <h4>${dept.name}</h4>
-                                <p class="text-muted">${dept.description || ''}</p>
-                                <div class="mt-3">
-                                    <span class="badge bg-primary">${dept.careerPaths?.length || 0} paths</span>
-                                    <span class="badge bg-success">${dept.demandScore || 'High'} demand</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                this.selectedDepartment = department;
+                this.showCareerPaths();
             }
             
             selectDepartment(deptId) {
@@ -152,31 +219,87 @@
             }
             
             showCareerPaths() {
-                document.getElementById('departmentCards').style.display = 'none';
-                document.getElementById('pathDetails').style.display = 'block';
+                const departmentSection = document.getElementById('department-selector');
+                const pathDetails = document.getElementById('pathDetails');
+                
+                if (departmentSection) departmentSection.style.display = 'none';
+                if (pathDetails) pathDetails.style.display = 'block';
                 
                 const pathTitle = document.getElementById('pathTitle');
                 const pathDescription = document.getElementById('pathDescription');
                 
-                pathTitle.textContent = this.selectedDepartment.name;
-                pathDescription.textContent = this.selectedDepartment.description || 'Explore career paths for this department';
+                if (pathTitle) pathTitle.textContent = this.selectedDepartment.name;
+                if (pathDescription) pathDescription.textContent = this.selectedDepartment.description || 'Explore career paths for this department';
                 
-                // Load first career path by default
+                // Show career paths list first, then load first path by default
                 if (this.selectedDepartment.careerPaths?.length > 0) {
+                    // Show career paths selector
+                    this.showCareerPathsList();
+                    // Load first career path by default
                     this.selectPath(this.selectedDepartment.careerPaths[0].id);
+                } else {
+                    // No career paths available
+                    this.loadRoadmap(null);
+                    this.loadSkills(null);
+                    this.loadCourses(null);
+                    this.loadJobs(null);
                 }
                 
-                // Update comparison dropdowns
-                this.updateComparisonDropdowns();
+            }
+            
+            showCareerPathsList() {
+                // Create or update career paths selector
+                let pathsSelector = document.getElementById('careerPathsSelector');
+                if (!pathsSelector) {
+                    const pathHeader = document.querySelector('.path-header');
+                    if (pathHeader) {
+                        pathsSelector = document.createElement('div');
+                        pathsSelector.id = 'careerPathsSelector';
+                        pathsSelector.className = 'mb-4';
+                        pathHeader.appendChild(pathsSelector);
+                    }
+                }
+                
+                if (pathsSelector && this.selectedDepartment.careerPaths?.length > 0) {
+                    pathsSelector.innerHTML = `
+                        <h4 class="mb-3">Available Career Paths</h4>
+                        <div class="row">
+                            ${this.selectedDepartment.careerPaths.map(path => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="career-path-card ${this.selectedPath?.id === path.id ? 'active' : ''}" 
+                                         onclick="careerPaths.selectPath('${path.id}')">
+                                        <h5>${path.title}</h5>
+                                        <p class="text-muted small">${path.description}</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <span class="badge bg-info">${path.difficulty || 'Intermediate'}</span>
+                                            <span class="text-muted small">${path.timeToHire || '3-6 months'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
             }
             
             selectPath(pathId) {
                 const path = this.selectedDepartment.careerPaths.find(p => p.id === pathId);
+                if (!path) return;
+                
                 this.selectedPath = path;
                 
                 // Update path details
-                document.getElementById('pathTitle').textContent = path.title;
-                document.getElementById('pathDescription').textContent = path.description;
+                const pathTitle = document.getElementById('pathTitle');
+                const pathDescription = document.getElementById('pathDescription');
+                if (pathTitle) pathTitle.textContent = path.title;
+                if (pathDescription) pathDescription.textContent = path.description;
+                
+                // Update active state in career paths list
+                document.querySelectorAll('.career-path-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                const activeCard = document.querySelector(`[onclick*="${pathId}"]`);
+                if (activeCard) activeCard.classList.add('active');
                 
                 // Load roadmap
                 this.loadRoadmap(path);
@@ -244,23 +367,43 @@
                 const container = document.getElementById('coursesGrid');
                 if (!container) return;
                 
-                const courses = path.courses || [
-                    { name: 'Complete Web Developer Bootcamp', platform: 'Udemy', duration: '60h', rating: 4.7 },
-                    { name: 'React Fundamentals', platform: 'Coursera', duration: '40h', rating: 4.6 }
-                ];
+                // Get courses from dummy-data.js that match the career path skills
+                const allCourses = window.appData?.courses || {};
+                let relevantCourses = [];
                 
-                container.innerHTML = courses.map(course => `
+                // Try to find courses matching the path's skills
+                if (path.skills && path.skills.length > 0) {
+                    const skillNames = path.skills.map(s => s.name.toLowerCase());
+                    Object.entries(allCourses).forEach(([category, courses]) => {
+                        courses.forEach(course => {
+                            const courseName = course.name.toLowerCase();
+                            if (skillNames.some(skill => courseName.includes(skill) || skill.includes(courseName.split(' ')[0]))) {
+                                relevantCourses.push({ ...course, platform: category });
+                            }
+                        });
+                    });
+                }
+                
+                // Fallback to default courses if none found
+                if (relevantCourses.length === 0) {
+                    relevantCourses = path.courses || [
+                        { name: 'Complete Web Developer Bootcamp', platform: 'Udemy', duration: '60h', rating: 4.7 },
+                        { name: 'React Fundamentals', platform: 'Coursera', duration: '40h', rating: 4.6 }
+                    ];
+                }
+                
+                container.innerHTML = relevantCourses.slice(0, 4).map(course => `
                     <div class="col-md-6 mb-4">
                         <div class="course-card">
                             <div class="course-header">
                                 <h5>${course.name}</h5>
-                                <span class="badge bg-primary">${course.platform}</span>
+                                <span class="badge bg-primary">${course.platform || 'Online'}</span>
                             </div>
                             <div class="course-details">
-                                <p><i class="fas fa-clock"></i> ${course.duration}</p>
-                                <p><i class="fas fa-star"></i> ${course.rating}/5</p>
+                                <p><i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}</p>
+                                <p><i class="fas fa-star"></i> ${course.rating || '4.5'}/5</p>
                             </div>
-                            <button class="btn btn-sm btn-outline-primary">View Course</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="window.location.href='courses.html'">View Course</button>
                         </div>
                     </div>
                 `).join('');
@@ -270,7 +413,18 @@
                 const container = document.getElementById('jobsGrid');
                 if (!container) return;
                 
-                const jobs = [
+                // Get jobs from dummy-data.js that match the career path
+                const allJobs = window.appData?.jobs || [];
+                const matchingJobs = allJobs.filter(job => {
+                    // Match by department or job title keywords
+                    const pathTitle = path.title.toLowerCase();
+                    const jobTitle = job.title.toLowerCase();
+                    return job.department === this.selectedDepartment.name.substring(0, 3).toUpperCase() ||
+                           jobTitle.includes(pathTitle.split(' ')[0]) ||
+                           pathTitle.includes(jobTitle.split(' ')[0]);
+                });
+                
+                const jobs = matchingJobs.length > 0 ? matchingJobs.slice(0, 4) : [
                     { title: 'Junior Developer', company: 'Tech Corp', salary: '$65k-$80k', location: 'Remote' },
                     { title: 'Frontend Engineer', company: 'Startup XYZ', salary: '$75k-$90k', location: 'NYC' }
                 ];
@@ -279,58 +433,17 @@
                     <div class="col-md-6 mb-4">
                         <div class="job-card">
                             <div class="job-header">
-                                <h5>${job.title}</h5>
-                                <span class="company">${job.company}</span>
+                                <h5>${job.title || job.name}</h5>
+                                <span class="company">${job.company || 'Company'}</span>
                             </div>
                             <div class="job-details">
-                                <p><i class="fas fa-dollar-sign"></i> ${job.salary}</p>
-                                <p><i class="fas fa-map-marker-alt"></i> ${job.location}</p>
+                                <p><i class="fas fa-dollar-sign"></i> ${job.salary || 'Competitive'}</p>
+                                <p><i class="fas fa-map-marker-alt"></i> ${job.location || 'Location TBD'}</p>
                             </div>
-                            <button class="btn btn-sm btn-gradient">Apply Now</button>
+                            <button class="btn btn-sm btn-gradient" onclick="window.location.href='job-portal.html'">View Details</button>
                         </div>
                     </div>
                 `).join('');
-            }
-            
-            updateComparisonDropdowns() {
-                const dropdown1 = document.getElementById('comparePath1');
-                const dropdown2 = document.getElementById('comparePath2');
-                
-                // Clear existing options
-                dropdown1.innerHTML = '<option>Select first career path</option>';
-                dropdown2.innerHTML = '<option>Select second career path</option>';
-                
-                // Add options from selected department
-                this.selectedDepartment.careerPaths.forEach(path => {
-                    const option1 = document.createElement('option');
-                    option1.value = path.id;
-                    option1.textContent = path.title;
-                    dropdown1.appendChild(option1.cloneNode(true));
-                    dropdown2.appendChild(option1);
-                });
-                
-                // Add event listeners
-                dropdown1.addEventListener('change', (e) => this.updateComparison(e.target.value, 'compareDetails1'));
-                dropdown2.addEventListener('change', (e) => this.updateComparison(e.target.value, 'compareDetails2'));
-            }
-            
-            updateComparison(pathId, containerId) {
-                const path = this.selectedDepartment.careerPaths.find(p => p.id === pathId);
-                const container = document.getElementById(containerId);
-                
-                if (path && container) {
-                    container.innerHTML = `
-                        <div class="comparison-card">
-                            <h5>${path.title}</h5>
-                            <p>${path.description}</p>
-                            <div class="comparison-stats">
-                                <p><strong>Difficulty:</strong> ${path.difficulty || 'Intermediate'}</p>
-                                <p><strong>Time to Hire:</strong> ${path.timeToHire || '3-6 months'}</p>
-                                <p><strong>Salary Range:</strong> ${path.salaryRange?.entry || '$60k'} - ${path.salaryRange?.senior || '$120k'}</p>
-                            </div>
-                        </div>
-                    `;
-                }
             }
             
             generateDefaultRoadmap() {
@@ -342,11 +455,31 @@
                 };
             }
             
+            selectDepartment(deptId) {
+                const department = window.appData?.departments?.find(d => d.id === deptId);
+                if (!department) return;
+                
+                this.selectedDepartment = department;
+                this.showCareerPaths();
+            }
+            
             initEventListeners() {
                 // Back button
                 document.getElementById('backToDepartments')?.addEventListener('click', () => {
-                    document.getElementById('departmentCards').style.display = 'flex';
-                    document.getElementById('pathDetails').style.display = 'none';
+                    const departmentSection = document.getElementById('department-selector');
+                    const pathDetails = document.getElementById('pathDetails');
+                    
+                    if (departmentSection) {
+                        departmentSection.style.display = 'block';
+                        // Scroll to top
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        // Clear URL parameter
+                        window.history.pushState({}, '', 'career-paths.html');
+                    }
+                    if (pathDetails) pathDetails.style.display = 'none';
+                    
+                    this.selectedDepartment = null;
+                    this.selectedPath = null;
                 });
             }
         }
