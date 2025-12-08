@@ -179,13 +179,58 @@
         
         .theme-toggle {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            bottom: 2rem;
+            right: 2rem;
             z-index: 1000;
+        }
+        
+        .login-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        
+        .login-navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .login-navbar .brand-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .login-navbar .brand-logo:hover {
+            color: var(--primary-color);
+        }
+        
+        .login-container {
+            padding-top: 80px;
         }
     </style>
 </head>
 <body>
+    <!-- Navigation -->
+    <nav class="login-navbar">
+        <div class="container">
+            <a href="index.html" class="brand-logo">
+                <i class="fas fa-binoculars"></i>
+                Career<span class="gradient-text">Lens</span>
+            </a>
+            <a href="index.html" class="btn btn-gradient btn-sm">
+                <i class="fas fa-home me-1"></i>Home
+            </a>
+        </div>
+    </nav>
+
     <!-- Theme Toggle -->
     <div class="theme-toggle">
         <button id="themeToggle" class="btn btn-sm">

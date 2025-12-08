@@ -87,14 +87,19 @@ function createStandardNavigation(currentPage = '') {
         }
     });
     
+    // Check if user is logged in
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const loginHref = isLoggedIn ? `${basePath}pages/dashboard.html` : `${basePath}login.html`;
+    const loginButtonText = isLoggedIn ? 'My Profile' : 'Login';
+    
     navHTML += `
                     </ul>
                     
                     <div class="d-flex gap-2">
-                        <a href="${basePath}pages/dashboard.html" class="btn btn-gradient">My Profile</a>
-                        <button id="logoutBtn" class="btn btn-outline-danger">
+                        <a href="${loginHref}" class="btn btn-gradient">${loginButtonText}</a>
+                        ${isLoggedIn ? `<button id="logoutBtn" class="btn btn-outline-danger">
                             <i class="fas fa-sign-out-alt me-1"></i>Logout
-                        </button>
+                        </button>` : ''}
                     </div>
                 </div>
             </div>
