@@ -1,0 +1,119 @@
+<div class="community-page">
+    <div class="container">
+        <!-- Network Visualization -->
+        <div class="network-visualization">
+            <canvas id="networkCanvas"></canvas>
+            <div class="network-controls">
+                <button class="btn-control" id="zoomIn"><i class="fas fa-search-plus"></i></button>
+                <button class="btn-control" id="zoomOut"><i class="fas fa-search-minus"></i></button>
+                <button class="btn-control" id="centerView"><i class="fas fa-crosshairs"></i></button>
+            </div>
+        </div>
+        
+        <!-- Discussion Forums -->
+        <div class="forums-section">
+            <div class="forum-categories">
+                <div class="category-card" onclick="showForum('career-advice')">
+                    <i class="fas fa-comments fa-2x"></i>
+                    <h5>Career Advice</h5>
+                    <p>Get guidance from experienced professionals</p>
+                </div>
+                <div class="category-card" onclick="showForum('interview-exp')">
+                    <i class="fas fa-user-tie fa-2x"></i>
+                    <h5>Interview Experiences</h5>
+                    <p>Share and learn from interview stories</p>
+                </div>
+                <!-- More categories -->
+            </div>
+            
+            <div class="forum-threads">
+                <div class="thread-card">
+                    <div class="thread-header">
+                        <img src="../assets/images/avatars/avatar3.jpg" alt="User">
+                        <div>
+                            <h6>How to prepare for Google interview?</h6>
+                            <small>Posted by John Doe • 2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        <p>I have an interview scheduled next month. Any tips?</p>
+                    </div>
+                    <div class="thread-stats">
+                        <span><i class="fas fa-heart"></i> 24</span>
+                        <span><i class="fas fa-comment"></i> 12</span>
+                        <span><i class="fas fa-share"></i> 3</span>
+                    </div>
+                </div>
+                <!-- More threads -->
+            </div>
+        </div>
+        
+        <!-- Mentor Matching -->
+        <div class="mentor-matching">
+            <h3>Find a Mentor</h3>
+            <div class="mentor-filters">
+                <input type="text" placeholder="Search mentors by skill or company...">
+                <select>
+                    <option>All Industries</option>
+                    <option>Technology</option>
+                    <option>Finance</option>
+                    <option>Healthcare</option>
+                </select>
+            </div>
+            
+            <div class="mentor-cards">
+                <div class="mentor-card">
+                    <div class="mentor-avatar">
+                        <img src="../assets/images/mentors/mentor1.jpg" alt="Mentor">
+                        <div class="online-status online"></div>
+                    </div>
+                    <div class="mentor-info">
+                        <h5>Sarah Chen</h5>
+                        <p class="mentor-role">Senior Engineer at Google</p>
+                        <div class="mentor-skills">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">Node.js</span>
+                            <span class="skill-tag">System Design</span>
+                        </div>
+                        <div class="mentor-stats">
+                            <span><i class="fas fa-star"></i> 4.9</span>
+                            <span><i class="fas fa-users"></i> 50+ mentees</span>
+                        </div>
+                        <button class="btn btn-sm btn-gradient request-mentor">Request Session</button>
+                    </div>
+                </div>
+                <!-- More mentors -->
+            </div>
+        </div>
+        
+        <!-- Success Stories Feed -->
+        <div class="success-feed">
+            <h3>Recent Success Stories</h3>
+            <div class="stories-grid">
+                <div class="story-post">
+                    <div class="story-header">
+                        <img src="../assets/images/avatars/avatar4.jpg" alt="User">
+                        <div>
+                            <h6>Michael Rodriguez</h6>
+                            <small>Landed job at Amazon • 1 day ago</small>
+                        </div>
+                    </div>
+                    <div class="story-content">
+                        <p>"After 3 months of following my Carrier Lens roadmap, I got an offer from Amazon!"</p>
+                        <div class="story-before-after">
+                            <div class="before">
+                                <strong>Before:</strong>
+                                <p>Junior Developer, $65k</p>
+                            </div>
+                            <div class="after">
+                                <strong>After:</strong>
+                                <p>SDE II, $145k</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- More stories -->
+            </div>
+        </div>
+    </div>
+</div>

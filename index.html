@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrier Lens - AI-Powered Career Path Platform</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/threejs.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/icons/logo.svg">
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <!-- 3D Background Canvas -->
+    <canvas id="threejsBackground"></canvas>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <div class="brand-logo">
+                    <i class="fas fa-binoculars"></i>
+                    <span>Carrier<span class="gradient-text">Lens</span></span>
+                </div>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#departments">Departments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ai-coach">AI Coach</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#success-stories">Success Stories</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">
+                            Tools
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="pages/salary-estimator.html">Salary Estimator</a></li>
+                            <li><a class="dropdown-item" href="pages/interview-prep.html">Interview Prep</a></li>
+                            <li><a class="dropdown-item" href="pages/skill-assessment.html">Skill Assessment</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <div class="d-flex gap-2">
+                    <a href="pages/dashboard.html" class="btn btn-gradient">Launch Dashboard</a>
+                    <a href="#get-started" class="btn btn-outline-light">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with 3D Elements -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-3 fw-bold mb-4">
+                        <span class="typewriter" data-text='["Career Paths", "Skill Development", "Job Opportunities", "AI Guidance"]'></span>
+                        <br>for <span class="gradient-text">Fresh Graduates</span>
+                    </h1>
+                    <p class="lead mb-4">AI-powered platform that illuminates your career journey with personalized roadmaps, skill recommendations, and direct job connections.</p>
+                    
+                    <div class="hero-cta">
+                        <a href="#department-selector" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-rocket me-2"></i>Start Journey
+                        </a>
+                        <a href="#video-demo" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-play-circle me-2"></i>Watch Demo
+                        </a>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="quick-stats mt-5">
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="stat">
+                                    <h3 class="counter" data-target="5000">0</h3>
+                                    <p>Career Paths</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat">
+                                    <h3 class="counter" data-target="12000">0</h3>
+                                    <p>Jobs Posted</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat">
+                                    <h3 class="counter" data-target="98">0</h3>
+                                    <p>% Success Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <!-- Interactive 3D Career Path Visualization -->
+                    <div id="careerVisualization3D" class="visualization-container">
+                        <div class="visualization-controls">
+                            <button class="btn-control" id="rotateView"><i class="fas fa-sync-alt"></i></button>
+                            <button class="btn-control" id="zoomIn"><i class="fas fa-search-plus"></i></button>
+                            <button class="btn-control" id="zoomOut"><i class="fas fa-search-minus"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Career Coach Section -->
+    <section id="ai-coach" class="section-dark">
+        <div class="container">
+            <div class="section-header">
+                <h2>AI Career Coach</h2>
+                <p>Get personalized guidance from our AI assistant</p>
+            </div>
+            
+            <div class="ai-coach-container">
+                <div class="ai-avatar">
+                    <div class="avatar-circle">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="pulse-ring"></div>
+                </div>
+                
+                <div class="ai-chat-container">
+                    <div class="ai-chat-messages" id="aiChatMessages">
+                        <div class="message ai-message">
+                            <div class="message-content">
+                                Hello! I'm your AI Career Coach. I can help you with:
+                                <div class="quick-options">
+                                    <button class="option-btn" data-question="Career path suggestions">Career Path</button>
+                                    <button class="option-btn" data-question="Skill gap analysis">Skill Analysis</button>
+                                    <button class="option-btn" data-question="Interview preparation">Interview Prep</button>
+                                    <button class="option-btn" data-question="Resume review">Resume Review</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ai-chat-input">
+                        <input type="text" id="aiChatInput" placeholder="Ask me anything about your career...">
+                        <button id="sendMessage" class="btn btn-gradient">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Department Selector with 3D Cards -->
+    <section id="department-selector" class="section-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Select Your Department</h2>
+                <p>Choose your academic background to get personalized guidance</p>
+            </div>
+            
+            <div class="department-filters">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="tech">Technology</button>
+                    <button class="filter-btn" data-filter="business">Business</button>
+                    <button class="filter-btn" data-filter="science">Science</button>
+                    <button class="filter-btn" data-filter="arts">Arts & Humanities</button>
+                </div>
+                
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="departmentSearch" placeholder="Search departments...">
+                </div>
+            </div>
+            
+            <div class="row" id="departmentGrid">
+                <!-- Departments loaded via JavaScript -->
+            </div>
+            
+            <div class="text-center mt-5">
+                <button id="loadMoreDepartments" class="btn btn-outline-primary">
+                    <i class="fas fa-plus-circle me-2"></i>Load More Departments
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Career Path Comparison Tool -->
+    <section id="path-comparison" class="section-dark">
+        <div class="container">
+            <div class="section-header">
+                <h2>Compare Career Paths</h2>
+                <p>Side-by-side comparison of different career options</p>
+            </div>
+            
+            <div class="comparison-tool">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="comparison-card" id="pathA">
+                            <div class="card-header">
+                                <h4>Select First Career Path</h4>
+                                <select class="form-select" id="pathASelect">
+                                    <option>Choose a career path</option>
+                                </select>
+                            </div>
+                            <div class="card-body" id="pathADetails">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="comparison-card" id="pathB">
+                            <div class="card-header">
+                                <h4>Select Second Career Path</h4>
+                                <select class="form-select" id="pathBSelect">
+                                    <option>Choose a career path</option>
+                                </select>
+                            </div>
+                            <div class="card-body" id="pathBDetails">
+                                <!-- Dynamic content -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="comparison-results mt-4">
+                    <div class="result-chart">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Stories Carousel -->
+    <section id="success-stories" class="section-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Success Stories</h2>
+                <p>Real graduates who found their path with Carrier Lens</p>
+            </div>
+            
+            <div class="stories-carousel">
+                <div class="carousel-container">
+                    <div class="story-card active">
+                        <div class="story-image">
+                            <img src="assets/images/avatars/avatar1.jpg" alt="Success Story">
+                            <div class="story-badge">CSE Graduate</div>
+                        </div>
+                        <div class="story-content">
+                            <h4>Sarah Johnson</h4>
+                            <p class="story-role">Software Engineer at Google</p>
+                            <p class="story-text">"Carrier Lens helped me identify the exact skills I needed and connected me with the right courses. Landed my dream job in 3 months!"</p>
+                            <div class="story-stats">
+                                <span><i class="fas fa-chart-line"></i> 85% Skill Match</span>
+                                <span><i class="fas fa-clock"></i> 3 Months</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- More stories -->
+                </div>
+                
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-btn next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="footer-brand">
+                        <i class="fas fa-binoculars fa-2x"></i>
+                        <h3>Carrier<span>Lens</span></h3>
+                        <p>Illuminating career paths for fresh graduates worldwide</p>
+                    </div>
+                    
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2">
+                    <h5>Platform</h5>
+                    <ul>
+                        <li><a href="pages/dashboard.html">Dashboard</a></li>
+                        <li><a href="pages/career-paths.html">Career Paths</a></li>
+                        <li><a href="pages/job-portal.html">Job Portal</a></li>
+                        <li><a href="pages/courses.html">Courses</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2">
+                    <h5>Tools</h5>
+                    <ul>
+                        <li><a href="pages/cv-builder.html">CV Builder</a></li>
+                        <li><a href="pages/salary-estimator.html">Salary Estimator</a></li>
+                        <li><a href="pages/interview-prep.html">Interview Prep</a></li>
+                        <li><a href="pages/skill-assessment.html">Skill Assessment</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4">
+                    <h5>Newsletter</h5>
+                    <p>Subscribe for career tips and job opportunities</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Your email address">
+                        <button class="btn btn-gradient">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Carrier Lens. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="scripts/dummy-data.js"></script>
+    <script src="scripts/threejs-visualization.js"></script>
+    <script src="scripts/ai-coach.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
