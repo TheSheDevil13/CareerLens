@@ -286,24 +286,46 @@ class CareerVisualization3D {
         // Find and highlight the department node
         this.scene.children.forEach(child => {
             if (child.userData && child.userData.id === deptId) {
-                // Scale up animation
-                const scaleUp = gsap.to(child.scale, {
-                    x: 1.5,
-                    y: 1.5,
-                    z: 1.5,
-                    duration: 0.3,
-                    ease: "back.out(1.7)"
-                });
+                // Scale up animation (without GSAP)
+                const originalScale = { x: child.scale.x, y: child.scale.y, z: child.scale.z };
+                let scale = 1.0;
+                const scaleInterval = setInterval(() => {
+                    scale += 0.1;
+                    if (scale >= 1.5) {
+                        clearInterval(scaleInterval);
+                        // Scale back down
+                        const scaleDownInterval = setInterval(() => {
+                            scale -= 0.1;
+                            if (scale <= 1.0) {
+                                clearInterval(scaleDownInterval);
+                            } else {
+                                child.scale.set(scale, scale, scale);
+                            }
+                        }, 50);
+                    } else {
+                        child.scale.set(scale, scale, scale);
+                    }
+                }, 50);
                 
                 // Pulse effect
                 const material = child.material;
                 const originalEmissive = material.emissiveIntensity;
-                gsap.to(material, {
-                    emissiveIntensity: 0.8,
-                    duration: 0.5,
-                    yoyo: true,
-                    repeat: 1
-                });
+                let intensity = originalEmissive;
+                let increasing = true;
+                const pulseInterval = setInterval(() => {
+                    if (increasing) {
+                        intensity += 0.1;
+                        if (intensity >= 0.8) {
+                            increasing = false;
+                        }
+                    } else {
+                        intensity -= 0.1;
+                        if (intensity <= originalEmissive) {
+                            clearInterval(pulseInterval);
+                        }
+                    }
+                    material.emissiveIntensity = intensity;
+                }, 100);
             }
         });
     }
@@ -312,14 +334,25 @@ class CareerVisualization3D {
         // Create a path animation
         const particles = this.createSelectionParticles(deptId, careerId);
         
-        // Camera animation to focus on the career
-        gsap.to(this.camera.position, {
-            x: 10,
-            y: 5,
-            z: 20,
-            duration: 1,
-            ease: "power2.inOut"
-        });
+        // Camera animation to focus on the career (without GSAP)
+        const startPos = { x: this.camera.position.x, y: this.camera.position.y, z: this.camera.position.z };
+        const endPos = { x: 10, y: 5, z: 20 };
+        let progress = 0;
+        const animateCamera = () => {
+            progress += 0.02;
+            if (progress >= 1) {
+                this.camera.position.set(endPos.x, endPos.y, endPos.z);
+                return;
+            }
+            const easeProgress = progress * (2 - progress); // ease out
+            this.camera.position.set(
+                startPos.x + (endPos.x - startPos.x) * easeProgress,
+                startPos.y + (endPos.y - startPos.y) * easeProgress,
+                startPos.z + (endPos.z - startPos.z) * easeProgress
+            );
+            requestAnimationFrame(animateCamera);
+        };
+        animateCamera();
     }
     
     createSelectionParticles(deptId, careerId) {
@@ -355,19 +388,38 @@ class CareerVisualization3D {
                 (Math.random() - 0.5) * 0.2
             );
             
-            gsap.to(positionsArray, {
-                [i]: positionsArray[i] + velocity.x * 50,
-                [i + 1]: positionsArray[i + 1] + velocity.y * 50,
-                [i + 2]: positionsArray[i + 2] + velocity.z * 50,
-                duration: 2,
-                ease: "power2.out",
-                onUpdate: () => {
+            // Animate particles without GSAP
+            const startPos = {
+                x: positionsArray[i],
+                y: positionsArray[i + 1],
+                z: positionsArray[i + 2]
+            };
+            const endPos = {
+                x: startPos.x + velocity.x * 50,
+                y: startPos.y + velocity.y * 50,
+                z: startPos.z + velocity.z * 50
+            };
+            let animProgress = 0;
+            const animateParticle = () => {
+                animProgress += 0.02;
+                if (animProgress >= 1) {
+                    positionsArray[i] = endPos.x;
+                    positionsArray[i + 1] = endPos.y;
+                    positionsArray[i + 2] = endPos.z;
                     particleSystem.geometry.attributes.position.needsUpdate = true;
-                },
-                onComplete: () => {
-                    this.scene.remove(particleSystem);
+                    if (i === (particleCount - 1) * 3) {
+                        setTimeout(() => this.scene.remove(particleSystem), 100);
+                    }
+                    return;
                 }
-            });
+                const easeProgress = 1 - Math.pow(1 - animProgress, 2); // ease out
+                positionsArray[i] = startPos.x + (endPos.x - startPos.x) * easeProgress;
+                positionsArray[i + 1] = startPos.y + (endPos.y - startPos.y) * easeProgress;
+                positionsArray[i + 2] = startPos.z + (endPos.z - startPos.z) * easeProgress;
+                particleSystem.geometry.attributes.position.needsUpdate = true;
+                requestAnimationFrame(animateParticle);
+            };
+            setTimeout(() => animateParticle(), i * 10);
         }
         
         return particleSystem;
