@@ -10,7 +10,7 @@ class JobPortal {
             type: '',
             location: '',
             salary: '',
-            remote: false
+            search: ''
         };
         this.savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
         this.appliedJobs = JSON.parse(localStorage.getItem('appliedJobs')) || [];
@@ -143,14 +143,15 @@ class JobPortal {
     }
     
     initFilters() {
-        // Department filter
+        // Department filter - use departments from appData
         const deptFilter = document.getElementById('departmentFilter');
         if (deptFilter) {
-            const departments = [...new Set(this.jobs.map(job => job.department))];
+            // Get departments from appData (career paths data)
+            const departments = window.appData?.departments || [];
             departments.forEach(dept => {
                 const option = document.createElement('option');
-                option.value = dept;
-                option.textContent = dept;
+                option.value = dept.name;
+                option.textContent = dept.name;
                 deptFilter.appendChild(option);
             });
             
@@ -183,15 +184,6 @@ class JobPortal {
         if (locationFilter) {
             locationFilter.addEventListener('change', (e) => {
                 this.filters.location = e.target.value;
-                this.applyFilters();
-            });
-        }
-        
-        // Remote filter
-        const remoteFilter = document.getElementById('remoteFilter');
-        if (remoteFilter) {
-            remoteFilter.addEventListener('change', (e) => {
-                this.filters.remote = e.target.checked;
                 this.applyFilters();
             });
         }
@@ -307,11 +299,6 @@ class JobPortal {
                 }
             }
             
-            // Remote filter
-            if (this.filters.remote && !job.location.toLowerCase().includes('remote')) {
-                return false;
-            }
-            
             // Salary filter
             if (this.filters.salary) {
                 const minSalary = parseInt(this.filters.salary) * 1000;
@@ -353,19 +340,17 @@ class JobPortal {
             type: '',
             location: '',
             salary: '',
-            remote: false,
             search: ''
         };
         
         // Reset filter UI
+        document.getElementById('searchFilter').value = '';
         document.getElementById('departmentFilter').value = '';
         document.getElementById('experienceFilter').value = '';
         document.getElementById('typeFilter').value = '';
         document.getElementById('locationFilter').value = '';
-        document.getElementById('remoteFilter').checked = false;
         document.getElementById('salaryFilter').value = '0';
         document.getElementById('salaryValue').textContent = '$0k+';
-        document.getElementById('searchFilter').value = '';
         
         this.filteredJobs = [...this.jobs];
         this.renderJobs();
