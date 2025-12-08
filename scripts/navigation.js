@@ -92,6 +92,9 @@ function createStandardNavigation(currentPage = '') {
                     
                     <div class="d-flex gap-2">
                         <a href="${basePath}pages/dashboard.html" class="btn btn-gradient">My Profile</a>
+                        <button id="logoutBtn" class="btn btn-outline-danger">
+                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                        </button>
                     </div>
                 </div>
             </div>
@@ -145,6 +148,41 @@ function initNavigation() {
                 if (collapseElement) {
                     new bootstrap.Collapse(collapseElement, { toggle: false });
                 }
+            }
+        });
+    }
+    
+    // Add logout button event listener
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const performLogout = () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    if (typeof LoginManager !== 'undefined') {
+                        LoginManager.logout();
+                    } else {
+                        // Clear localStorage and redirect manually
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('loginTime');
+                        const currentPath = window.location.pathname;
+                        const basePath = currentPath.includes('pages/') ? '../' : '';
+                        window.location.href = `${basePath}login.html`;
+                    }
+                }
+            };
+            
+            // Try to load login.js if LoginManager is not available
+            if (typeof LoginManager === 'undefined') {
+                const script = document.createElement('script');
+                const isInPages = window.location.pathname.includes('pages/');
+                script.src = isInPages ? '../scripts/login.js' : 'scripts/login.js';
+                script.onload = performLogout;
+                script.onerror = performLogout; // Fallback to manual logout if script fails to load
+                document.head.appendChild(script);
+            } else {
+                performLogout();
             }
         });
     }
