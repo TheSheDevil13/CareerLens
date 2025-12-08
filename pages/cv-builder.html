@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Builder - Career Lens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/cv-builder.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-logo">
+                    <i class="fas fa-binoculars"></i>
+                    <span>Career<span class="gradient-text">Lens</span></span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="career-paths.html">Career Paths</a></li>
+                    <li class="nav-item"><a class="nav-link" href="job-portal.html">Job Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">Tools</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="salary-estimator.html">Salary Estimator</a></li>
+                            <li><a class="dropdown-item" href="interview-prep.html">Interview Prep</a></li>
+                            <li><a class="dropdown-item" href="skill-assessment.html">Skill Assessment</a></li>
+                            <li><a class="dropdown-item active" href="cv-builder.html">CV Builder</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="dashboard.html" class="btn btn-gradient">My Profile</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="cv-builder-container page-container">
+        <div class="container py-5">
+            <div class="page-header text-center mb-5">
+                <h1 class="display-4 gradient-text">CV Builder</h1>
+                <p class="lead">Create a professional CV in minutes</p>
+            </div>
+
+            <div class="row">
+                <!-- Left Panel - Form -->
+                <div class="col-lg-5">
+                    <div class="cv-form-panel">
+                        <!-- Template Selection -->
+                        <div class="form-section mb-4">
+                            <h5>Choose Template</h5>
+                            <div id="templateGallery" class="template-gallery">
+                                <!-- Templates loaded by JavaScript -->
+                            </div>
+                        </div>
+
+                        <!-- Progress -->
+                        <div class="progress-section mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>CV Completion</span>
+                                <span class="progress-percent">0%</span>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Form Sections -->
+                        <div class="section-list">
+                            <!-- Header Section -->
+                            <div class="section-item" data-section="header">
+                                <div class="section-header">
+                                    <h6>Personal Information</h6>
+                                </div>
+                                <div class="section-content">
+                                    <div class="field-group">
+                                        <label>Full Name *</label>
+                                        <input type="text" class="field-input" data-field="header" name="name" placeholder="John Doe">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Professional Title *</label>
+                                        <input type="text" class="field-input" data-field="header" name="title" placeholder="Frontend Developer">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Email *</label>
+                                        <input type="email" class="field-input" data-field="header" name="email" placeholder="john.doe@example.com">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Phone</label>
+                                        <input type="tel" class="field-input" data-field="header" name="phone" placeholder="+1 (555) 123-4567">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Location</label>
+                                        <input type="text" class="field-input" data-field="header" name="location" placeholder="San Francisco, CA">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>LinkedIn</label>
+                                        <input type="url" class="field-input" data-field="header" name="linkedin" placeholder="linkedin.com/in/johndoe">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Summary Section -->
+                            <div class="section-item" data-section="summary">
+                                <div class="section-header">
+                                    <h6>Professional Summary</h6>
+                                    <button class="btn btn-sm btn-outline-primary ai-btn" data-section="summary">
+                                        <i class="fas fa-robot"></i> AI Suggest
+                                    </button>
+                                </div>
+                                <div class="section-content">
+                                    <textarea class="field-input field-textarea" data-field="summary" name="text" rows="4" placeholder="Write a brief summary of your professional background..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Experience Section -->
+                            <div class="section-item" data-section="experience">
+                                <div class="section-header">
+                                    <h6>Work Experience</h6>
+                                </div>
+                                <div class="section-content">
+                                    <div class="field-group">
+                                        <label>Job Title</label>
+                                        <input type="text" class="field-input" data-field="experience" name="title1" placeholder="Junior Frontend Developer">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Company</label>
+                                        <input type="text" class="field-input" data-field="experience" name="company1" placeholder="Tech Solutions Inc.">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Duration</label>
+                                        <input type="text" class="field-input" data-field="experience" name="duration1" placeholder="2022 - Present">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Description</label>
+                                        <textarea class="field-input field-textarea" data-field="experience" name="description1" rows="3" placeholder="Describe your responsibilities and achievements..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Education Section -->
+                            <div class="section-item" data-section="education">
+                                <div class="section-header">
+                                    <h6>Education</h6>
+                                </div>
+                                <div class="section-content">
+                                    <div class="field-group">
+                                        <label>Degree</label>
+                                        <input type="text" class="field-input" data-field="education" name="degree1" placeholder="Bachelor of Science in Computer Science">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Institution</label>
+                                        <input type="text" class="field-input" data-field="education" name="institution1" placeholder="State University">
+                                    </div>
+                                    <div class="field-group">
+                                        <label>Year</label>
+                                        <input type="text" class="field-input" data-field="education" name="year1" placeholder="2018 - 2022">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skills Section -->
+                            <div class="section-item" data-section="skills">
+                                <div class="section-header">
+                                    <h6>Skills</h6>
+                                </div>
+                                <div class="section-content">
+                                    <div class="field-group">
+                                        <label>Add Skill</label>
+                                        <div class="d-flex gap-2">
+                                            <input type="text" class="field-input" placeholder="e.g., JavaScript">
+                                            <button class="btn btn-primary add-tag-btn">Add</button>
+                                        </div>
+                                        <div class="skill-tags mt-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="cv-actions mt-4">
+                            <button id="saveDraft" class="btn btn-outline-primary">
+                                <i class="fas fa-save"></i> Save Draft
+                            </button>
+                            <button id="downloadPDF" class="btn btn-gradient">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
+                            <button id="resetCV" class="btn btn-outline-danger">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Preview -->
+                <div class="col-lg-7">
+                    <div class="cv-preview-panel">
+                        <div class="preview-header mb-3">
+                            <h5>CV Preview</h5>
+                            <div class="preview-controls">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                        <div id="cvPreview" class="cv-preview">
+                            <!-- CV preview loaded by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/theme-manager.js"></script>
+    <script src="../scripts/dummy-data.js"></script>
+    <script src="../scripts/cv-builder.js"></script>
+</body>
+</html>
+
+
+
