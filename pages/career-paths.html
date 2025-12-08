@@ -113,15 +113,6 @@
     <script src="../scripts/theme-manager.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../scripts/dummy-data.js"></script>
-    <script>
-        // Override exploreDepartment to show career paths on this page
-        window.app = window.app || {};
-        window.app.exploreDepartment = function(deptId) {
-            if (window.careerPaths) {
-                window.careerPaths.selectDepartment(deptId);
-            }
-        };
-    </script>
     <script src="../scripts/main.js"></script>
     <script>
         // Career Paths functionality
@@ -138,14 +129,31 @@
             }
             
             init() {
-                // Override exploreDepartment after main.js loads
-                setTimeout(() => {
-                    if (window.app && window.app.exploreDepartment) {
+                // Override exploreDepartment to work on this page
+                // This needs to happen after main.js loads but before buttons are clicked
+                const overrideExplore = () => {
+                    if (window.app) {
+                        // Store original function for navigation from other pages
+                        if (!window.app._originalExploreDepartment) {
+                            window.app._originalExploreDepartment = window.app.exploreDepartment;
+                        }
+                        // Override for this page
+                        window.app.exploreDepartment = (deptId) => {
+                            this.selectDepartment(deptId);
+                        };
+                    } else {
+                        // If app doesn't exist yet, create it
+                        window.app = window.app || {};
                         window.app.exploreDepartment = (deptId) => {
                             this.selectDepartment(deptId);
                         };
                     }
-                }, 1000);
+                };
+                
+                // Try to override immediately, then retry if needed
+                overrideExplore();
+                setTimeout(overrideExplore, 100);
+                setTimeout(overrideExplore, 500);
                 
                 // Check if department ID is in URL
                 const urlParams = new URLSearchParams(window.location.search);
@@ -173,15 +181,16 @@
             }
             
             selectDepartment(deptId) {
-                const department = window.appData?.departments?.find(d => d.id === deptId);
-                if (!department) return;
+                // Try to find department from appData first, then from local departments
+                const department = window.appData?.departments?.find(d => d.id === deptId) || 
+                                   this.departments.find(d => d.id === deptId);
+                
+                if (!department) {
+                    console.error('Department not found:', deptId);
+                    return;
+                }
                 
                 this.selectedDepartment = department;
-                this.showCareerPaths();
-            }
-            
-            selectDepartment(deptId) {
-                this.selectedDepartment = this.departments.find(d => d.id === deptId);
                 this.showCareerPaths();
             }
             
@@ -381,26 +390,67 @@
                 if (!container) return;
                 
                 // Get jobs from dummy-data.js that match the career path
-                const allJobs = window.appData?.jobs || [];
-                const matchingJobs = allJobs.filter(job => {
-                    // Match by department or job title keywords
-                    const pathTitle = path.title.toLowerCase();
-                    const jobTitle = job.title.toLowerCase();
-                    return job.department === this.selectedDepartment.name.substring(0, 3).toUpperCase() ||
-                           jobTitle.includes(pathTitle.split(' ')[0]) ||
-                           pathTitle.includes(jobTitle.split(' ')[0]);
+                const allJobs = window.appData?.jobListings || [];
+                
+                if (allJobs.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-muted">No job listings available at the moment.</p></div>';
+                    return;
+                }
+                
+                // Match jobs by department name first
+                let matchingJobs = allJobs.filter(job => {
+                    if (!job.department) return false;
+                    return job.department.toLowerCase() === this.selectedDepartment.name.toLowerCase();
                 });
                 
-                const jobs = matchingJobs.length > 0 ? matchingJobs.slice(0, 4) : [
-                    { title: 'Junior Developer', company: 'Tech Corp', salary: '$65k-$80k', location: 'Remote' },
-                    { title: 'Frontend Engineer', company: 'Startup XYZ', salary: '$75k-$90k', location: 'NYC' }
-                ];
+                // If we have matches, further filter by career path title keywords
+                if (matchingJobs.length > 0 && path && path.title) {
+                    const pathTitle = path.title.toLowerCase();
+                    const pathKeywords = pathTitle.split(' ').filter(word => word.length > 3); // Get meaningful keywords
+                    
+                    // Score jobs based on how well they match the career path
+                    matchingJobs = matchingJobs.map(job => {
+                        let score = 0;
+                        const jobTitle = (job.title || '').toLowerCase();
+                        const jobDesc = (job.description || '').toLowerCase();
+                        const jobReqs = (job.requirements || []).map(r => String(r).toLowerCase());
+                        
+                        // Check if job title contains career path keywords
+                        pathKeywords.forEach(keyword => {
+                            if (jobTitle.includes(keyword)) score += 3;
+                            if (jobDesc.includes(keyword)) score += 1;
+                            if (jobReqs.some(req => req.includes(keyword))) score += 2;
+                        });
+                        
+                        // Exact title match gets highest priority
+                        if (jobTitle === pathTitle || jobTitle.includes(pathTitle) || pathTitle.includes(jobTitle)) {
+                            score += 10;
+                        }
+                        
+                        return { ...job, matchScore: score };
+                    }).sort((a, b) => b.matchScore - a.matchScore);
+                }
+                
+                // Take top 4 matching jobs, or all if less than 4
+                const jobs = matchingJobs.length > 0 
+                    ? matchingJobs.slice(0, 4).map(j => ({ 
+                        title: j.title, 
+                        company: j.company, 
+                        salary: j.salary, 
+                        location: j.location 
+                    }))
+                    : [];
+                
+                if (jobs.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-muted">No specific job listings found for this career path. Check the <a href="job-portal.html">Job Portal</a> for more opportunities.</p></div>';
+                    return;
+                }
                 
                 container.innerHTML = jobs.map(job => `
                     <div class="col-md-6 mb-4">
                         <div class="job-card">
                             <div class="job-header">
-                                <h5>${job.title || job.name}</h5>
+                                <h5>${job.title || 'Job Title'}</h5>
                                 <span class="company">${job.company || 'Company'}</span>
                             </div>
                             <div class="job-details">
@@ -420,14 +470,6 @@
                     'Month 7-9': ['Portfolio Building', 'Create impressive projects for your portfolio'],
                     'Month 10-12': ['Job Preparation', 'Prepare resume, practice interviews, apply for jobs']
                 };
-            }
-            
-            selectDepartment(deptId) {
-                const department = window.appData?.departments?.find(d => d.id === deptId);
-                if (!department) return;
-                
-                this.selectedDepartment = department;
-                this.showCareerPaths();
             }
             
             initEventListeners() {
@@ -454,6 +496,35 @@
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', () => {
             window.careerPaths = new CareerPaths();
+            
+            // Ensure exploreDepartment is overridden after initialization
+            setTimeout(() => {
+                if (window.app && window.careerPaths) {
+                    window.app.exploreDepartment = (deptId) => {
+                        // Convert to number if it's a string
+                        const id = typeof deptId === 'string' ? parseInt(deptId) : deptId;
+                        window.careerPaths.selectDepartment(id);
+                    };
+                }
+            }, 100);
+            
+            // Also add click handlers directly to buttons as backup
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('.explore-btn-front, .explore-btn');
+                if (btn && btn.onclick) {
+                    const onclickStr = btn.getAttribute('onclick');
+                    if (onclickStr && onclickStr.includes('exploreDepartment')) {
+                        // Extract department ID from onclick string
+                        const match = onclickStr.match(/exploreDepartment\((\d+)\)/);
+                        if (match && window.careerPaths) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const deptId = parseInt(match[1]);
+                            window.careerPaths.selectDepartment(deptId);
+                        }
+                    }
+                }
+            });
         });
     </script>
 </body>
