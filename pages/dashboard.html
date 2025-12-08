@@ -228,12 +228,6 @@
             
             <!-- Courses Section -->
             <section id="courses" class="dashboard-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div class="header-left">
-                        <h2>My Courses</h2>
-                        <p>Track your learning journey</p>
-                    </div>
-                </div>
                 <div class="courses-grid" id="coursesGrid">
                     <!-- Course cards loaded by JavaScript -->
                 </div>
@@ -241,12 +235,6 @@
             
             <!-- Jobs Section -->
             <section id="jobs" class="dashboard-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div class="header-left">
-                        <h2>Saved Jobs</h2>
-                        <p>Your job opportunities</p>
-                    </div>
-                </div>
                 <div class="row" id="savedJobsGrid">
                     <!-- Job cards loaded by JavaScript -->
                 </div>
@@ -254,12 +242,50 @@
             
             <!-- Skills Section -->
             <section id="skills" class="dashboard-section" style="display: none;">
-                <div class="dashboard-header">
+                <div class="dashboard-header" style="margin-bottom: 1.5rem;">
                     <div class="header-left">
-                        <h2>My Skills</h2>
-                        <p>Track and improve your skills</p>
+                        <!-- Title will be set by switchSection -->
+                    </div>
+                    <div class="header-right">
+                        <button class="btn btn-gradient" id="addSkillBtn">
+                            <i class="fas fa-plus me-2"></i>Add Skill
+                        </button>
                     </div>
                 </div>
+                
+                <!-- Add Skill Form (initially hidden) -->
+                <div class="card mb-4" id="addSkillForm" style="display: none;">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Add New Skill</h5>
+                        <form id="newSkillForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="skillName" class="form-label">Skill Name</label>
+                                    <input type="text" class="form-control" id="skillName" placeholder="e.g., JavaScript, Python, React" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="skillLevel" class="form-label">Proficiency Level</label>
+                                    <select class="form-select" id="skillLevel" required>
+                                        <option value="">Select level</option>
+                                        <option value="Beginner">Beginner</option>
+                                        <option value="Intermediate">Intermediate</option>
+                                        <option value="Advanced">Advanced</option>
+                                        <option value="Expert">Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-gradient">
+                                    <i class="fas fa-check me-2"></i>Add Skill
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="cancelAddSkill">
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
                 <div class="row" id="skillsGrid">
                     <!-- Skills loaded by JavaScript -->
                 </div>
@@ -267,12 +293,6 @@
             
             <!-- Settings Section -->
             <section id="settings" class="dashboard-section" style="display: none;">
-                <div class="dashboard-header">
-                    <div class="header-left">
-                        <h2>Settings</h2>
-                        <p>Manage your account preferences</p>
-                    </div>
-                </div>
                 <div class="card">
                     <div class="card-body">
                         <h5 class="mb-3">Profile Information</h5>

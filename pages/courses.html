@@ -71,6 +71,29 @@
                 this.initDepartmentFilter();
                 this.renderCourses();
                 this.initFilters();
+                this.initEventListeners();
+            }
+            
+            initEventListeners() {
+                // Use event delegation for enroll buttons
+                const courseGrid = document.getElementById('courseGrid');
+                if (courseGrid) {
+                    courseGrid.addEventListener('click', (e) => {
+                        const enrollBtn = e.target.closest('.enroll-btn');
+                        if (enrollBtn) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const courseId = parseInt(enrollBtn.getAttribute('data-course-id'));
+                            
+                            if (courseId) {
+                                this.enrollCourse(courseId);
+                            } else {
+                                this.showNotification('Error: Invalid course ID', 'error');
+                            }
+                        }
+                    });
+                }
             }
             
             initDepartmentFilter() {
@@ -168,7 +191,13 @@
                 const container = document.getElementById('courseGrid');
                 if (!container) return;
                 
-                container.innerHTML = this.filteredCourses.map(course => `
+                // Get enrolled courses to check enrollment status
+                const userData = JSON.parse(localStorage.getItem('careerLensUser')) || {};
+                const enrolledCourseIds = (userData.enrolledCourses || []).map(c => typeof c === 'object' ? c.id : c);
+                
+                container.innerHTML = this.filteredCourses.map(course => {
+                    const isEnrolled = enrolledCourseIds.includes(course.id);
+                    return `
                     <div class="course-card mb-4">
                         <div class="course-header">
                             <div class="course-badge">${course.platform}</div>
@@ -192,12 +221,15 @@
                         </div>
                         <div class="course-footer">
                             <span class="course-price">${course.price}</span>
-                            <button class="btn btn-gradient" onclick="courses.enrollCourse(${course.id})">
-                                Enroll Now
+                            <button class="btn ${isEnrolled ? 'btn-outline-danger' : 'btn-gradient'} enroll-btn" 
+                                    data-course-id="${course.id}"
+                                    data-enrolled="${isEnrolled}">
+                                ${isEnrolled ? '<i class="fas fa-times me-2"></i>Unenroll' : '<i class="fas fa-plus me-2"></i>Enroll Now'}
                             </button>
                         </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             }
             
             initFilters() {
@@ -263,18 +295,144 @@
             }
             
             enrollCourse(courseId) {
-                const course = this.courses.find(c => c.id === courseId);
-                if (course) {
-                    alert(`Enrolling in: ${course.title}\n\nYou will be redirected to ${course.platform} to complete enrollment.`);
-                    // In a real application, this would redirect to the course platform
+                if (!courseId) {
+                    this.showNotification('Error: Course ID not found', 'error');
+                    return;
                 }
+                
+                const course = this.courses.find(c => c.id === courseId);
+                if (!course) {
+                    this.showNotification('Course not found', 'error');
+                    return;
+                }
+                
+                // Get user data
+                const userData = JSON.parse(localStorage.getItem('careerLensUser')) || {
+                    id: Date.now(),
+                    name: "New User",
+                    email: "",
+                    department: null,
+                    skills: [],
+                    enrolledCourses: [],
+                    completedCourses: [],
+                    savedJobs: [],
+                    progress: {},
+                    preferences: {
+                        theme: 'light',
+                        notifications: true
+                    }
+                };
+                
+                // Check if already enrolled
+                const enrolledCourseIds = (userData.enrolledCourses || []).map(c => typeof c === 'object' ? c.id : c);
+                const isEnrolled = enrolledCourseIds.includes(courseId);
+                
+                if (isEnrolled) {
+                    // Unenroll from course
+                    if (confirm(`Are you sure you want to unenroll from "${course.title}"?`)) {
+                        // Remove from enrolled courses
+                        userData.enrolledCourses = (userData.enrolledCourses || []).filter(c => {
+                            const id = typeof c === 'object' ? c.id : c;
+                            return id !== courseId;
+                        });
+                        
+                        // Remove progress (optional - you might want to keep it)
+                        if (userData.progress && userData.progress[courseId] !== undefined) {
+                            delete userData.progress[courseId];
+                        }
+                        
+                        // Save to localStorage
+                        localStorage.setItem('careerLensUser', JSON.stringify(userData));
+                        
+                        // Re-render courses to update button states
+                        this.renderCourses();
+                        
+                        this.showNotification(`Unenrolled from: ${course.title}`, 'info');
+                    }
+                } else {
+                    // Enroll in course
+                    // Create course object to save
+                    const courseToSave = {
+                        id: course.id,
+                        title: course.title,
+                        instructor: course.instructor,
+                        platform: course.platform,
+                        department: course.department,
+                        careerPath: course.careerPath,
+                        level: course.level,
+                        duration: course.duration,
+                        rating: course.rating,
+                        students: course.students,
+                        price: course.price,
+                        skills: course.skills || [],
+                        enrolledDate: new Date().toISOString(),
+                        progress: 0 // Start with 0% progress
+                    };
+                    
+                    // Add to enrolled courses
+                    if (!userData.enrolledCourses) {
+                        userData.enrolledCourses = [];
+                    }
+                    userData.enrolledCourses.push(courseToSave);
+                    
+                    // Initialize progress for this course
+                    if (!userData.progress) {
+                        userData.progress = {};
+                    }
+                    userData.progress[courseId] = 0;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('careerLensUser', JSON.stringify(userData));
+                    
+                    // Re-render courses to update button states
+                    this.renderCourses();
+                    
+                    this.showNotification(`Successfully enrolled in: ${course.title}!`, 'success');
+                }
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 100px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 10px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                    <span style="margin-left: 0.5rem;">${message}</span>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
             }
         }
         
         // Initialize courses
-        document.addEventListener('DOMContentLoaded', () => {
-            window.courses = new Courses();
-        });
+        let coursesInstance;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                coursesInstance = new Courses();
+                window.courses = coursesInstance;
+                console.log('Courses initialized');
+            });
+        } else {
+            coursesInstance = new Courses();
+            window.courses = coursesInstance;
+            console.log('Courses initialized (DOM already loaded)');
+        }
     </script>
 
     <!-- Theme Toggle -->

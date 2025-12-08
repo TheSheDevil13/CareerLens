@@ -89,7 +89,7 @@ class JobPortal {
                         </div>
                     </div>
                     <div class="job-actions">
-                        <button class="btn-action save-job ${this.savedJobs.includes(job.id) ? 'saved' : ''}" 
+                        <button class="btn-action save-job ${this.isJobSaved(job.id) ? 'saved' : ''}" 
                                 data-action="save" data-job-id="${job.id}">
                             <i class="fas fa-bookmark"></i>
                         </button>
@@ -440,13 +440,48 @@ class JobPortal {
         document.querySelector(`[data-view="${viewType}"]`).classList.add('active');
     }
     
+    isJobSaved(jobId) {
+        // Check if job is saved (handle both old format with IDs and new format with objects)
+        return this.savedJobs.some(job => {
+            if (typeof job === 'number') {
+                return job === jobId;
+            } else if (typeof job === 'object') {
+                return job.id === jobId;
+            }
+            return false;
+        });
+    }
+    
     toggleSaveJob(jobId) {
-        const index = this.savedJobs.indexOf(jobId);
+        // Find the full job object
+        const job = this.jobs.find(j => j.id === jobId);
+        if (!job) {
+            this.showNotification('Job not found', 'error');
+            return;
+        }
+        
+        // Check if job is already saved (by ID)
+        const savedJobIds = this.savedJobs.map(j => typeof j === 'number' ? j : (typeof j === 'object' ? j.id : j));
+        const index = savedJobIds.indexOf(jobId);
         const button = document.querySelector(`.save-job[data-job-id="${jobId}"]`);
         
         if (index === -1) {
-            // Save job
-            this.savedJobs.push(jobId);
+            // Save job - save the full job object
+            const jobToSave = {
+                id: job.id,
+                title: job.title,
+                company: job.company,
+                location: job.location,
+                salary: job.salary,
+                type: job.type,
+                experience: job.experience,
+                department: job.department,
+                description: job.description,
+                requirements: job.requirements,
+                posted: job.posted,
+                savedDate: new Date().toISOString()
+            };
+            this.savedJobs.push(jobToSave);
             button.classList.add('saved');
             button.innerHTML = '<i class="fas fa-bookmark"></i>';
             this.showNotification('Job saved to favorites!', 'success');
@@ -459,6 +494,12 @@ class JobPortal {
         }
         
         localStorage.setItem('savedJobs', JSON.stringify(this.savedJobs));
+        
+        // Also update careerLensUser savedJobs
+        const userData = JSON.parse(localStorage.getItem('careerLensUser')) || {};
+        userData.savedJobs = this.savedJobs;
+        localStorage.setItem('careerLensUser', JSON.stringify(userData));
+        
         this.updateCounts();
     }
     
@@ -632,7 +673,7 @@ class JobPortal {
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-outline-primary" onclick="jobPortal.toggleSaveJob(${jobId})">
-                            ${this.savedJobs.includes(jobId) ? 'Unsave Job' : 'Save Job'}
+                            ${this.isJobSaved(jobId) ? 'Unsave Job' : 'Save Job'}
                         </button>
                         <button class="btn btn-gradient" onclick="jobPortal.applyToJob(${jobId})" 
                                 ${this.appliedJobs.includes(jobId) ? 'disabled' : ''}>

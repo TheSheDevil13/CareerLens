@@ -27,6 +27,16 @@ class Dashboard {
         this.renderActivity();
         this.initEventListeners();
         this.initCharts();
+        
+        // Refresh data when window gains focus (user returns from another page)
+        window.addEventListener('focus', () => {
+            this.loadUserData();
+            if (this.currentSection === 'courses') {
+                this.renderCourses();
+            }
+            this.renderStats();
+            this.renderUserProfile();
+        });
     }
     
     createDefaultUser() {
@@ -36,6 +46,7 @@ class Dashboard {
             email: "",
             department: null,
             skills: [],
+            enrolledCourses: [],
             completedCourses: [],
             savedJobs: [],
             progress: {},
@@ -49,14 +60,50 @@ class Dashboard {
     loadUserData() {
         // Merge with any additional data from localStorage
         const savedProgress = JSON.parse(localStorage.getItem('userProgress')) || {};
-        const savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
+        const savedJobsFromStorage = JSON.parse(localStorage.getItem('savedJobs')) || [];
         const appliedJobs = JSON.parse(localStorage.getItem('appliedJobs')) || [];
+        
+        // Convert savedJobs if they're just IDs to full objects
+        let savedJobs = savedJobsFromStorage;
+        if (savedJobs.length > 0 && typeof savedJobs[0] === 'number') {
+            // Old format - just IDs, need to get job details from appData
+            savedJobs = savedJobs.map(jobId => {
+                // Try to find job in appData
+                const allJobs = window.appData?.jobListings || [];
+                const job = allJobs.find(j => j.id === jobId);
+                if (job) {
+                    return {
+                        id: job.id,
+                        title: job.title,
+                        company: job.company,
+                        location: job.location,
+                        salary: job.salary,
+                        type: job.type,
+                        experience: job.experience,
+                        department: job.department,
+                        description: job.description,
+                        requirements: job.requirements,
+                        posted: job.posted
+                    };
+                }
+                return null;
+            }).filter(job => job !== null);
+            
+            // Update localStorage with full objects
+            localStorage.setItem('savedJobs', JSON.stringify(savedJobs));
+        }
+        
+        // Ensure enrolledCourses is loaded from userData
+        const userDataFromStorage = JSON.parse(localStorage.getItem('careerLensUser')) || {};
         
         this.userData = {
             ...this.userData,
             ...savedProgress,
-            savedJobs: savedJobs.length > 0 ? savedJobs : this.userData.savedJobs,
-            appliedJobs: appliedJobs
+            ...userDataFromStorage, // Merge all userData including enrolledCourses
+            savedJobs: savedJobs.length > 0 ? savedJobs : (this.userData.savedJobs || []),
+            appliedJobs: appliedJobs,
+            // Ensure enrolledCourses is preserved
+            enrolledCourses: userDataFromStorage.enrolledCourses || this.userData.enrolledCourses || []
         };
         
         // Save updated data
@@ -88,7 +135,9 @@ class Dashboard {
         }
         
         // Sidebar stats
-        const coursesCount = this.userData.completedCourses?.length || 0;
+        const enrolledCourses = this.userData.enrolledCourses?.length || 0;
+        const completedCourses = this.userData.completedCourses?.length || 0;
+        const coursesCount = enrolledCourses + completedCourses;
         const jobsCount = this.userData.savedJobs?.length || 0;
         const skillsCount = this.userData.skills?.length || 0;
         
@@ -137,7 +186,9 @@ class Dashboard {
     }
     
     renderStats() {
+        const enrolledCourses = this.userData.enrolledCourses?.length || 0;
         const completedCourses = this.userData.completedCourses?.length || 0;
+        const totalCourses = enrolledCourses + completedCourses;
         const savedJobs = this.userData.savedJobs?.length || 0;
         const skills = this.userData.skills?.length || 0;
         const achievements = this.calculateAchievements();
@@ -147,7 +198,14 @@ class Dashboard {
         const statTotalSkills = document.getElementById('statTotalSkills');
         const statAchievements = document.getElementById('statAchievements');
         
-        if (statCompletedCourses) statCompletedCourses.textContent = completedCourses;
+        // Update label to show enrolled courses instead of just completed
+        if (statCompletedCourses) {
+            statCompletedCourses.textContent = totalCourses;
+            const label = statCompletedCourses.nextElementSibling;
+            if (label && label.classList.contains('stat-label')) {
+                label.textContent = enrolledCourses > 0 ? 'Enrolled Courses' : 'Completed Courses';
+            }
+        }
         if (statSavedJobs) statSavedJobs.textContent = savedJobs;
         if (statTotalSkills) statTotalSkills.textContent = skills;
         if (statAchievements) statAchievements.textContent = achievements;
@@ -242,9 +300,23 @@ class Dashboard {
         const coursesGrid = document.getElementById('coursesGrid');
         if (!coursesGrid) return;
         
-        const courses = this.userData.completedCourses || [];
+        // Show enrolled courses (not just completed ones)
+        const enrolledCourses = this.userData.enrolledCourses || [];
+        const completedCourses = this.userData.completedCourses || [];
+        const allCourses = [...enrolledCourses, ...completedCourses];
         
-        if (courses.length === 0) {
+        // Remove duplicates based on course ID
+        const uniqueCourses = [];
+        const seenIds = new Set();
+        allCourses.forEach(course => {
+            const courseId = course.id || course;
+            if (!seenIds.has(courseId)) {
+                seenIds.add(courseId);
+                uniqueCourses.push(course);
+            }
+        });
+        
+        if (uniqueCourses.length === 0) {
             coursesGrid.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <i class="fas fa-book fa-3x text-muted mb-3"></i>
@@ -256,19 +328,27 @@ class Dashboard {
         }
         
         let html = '';
-        courses.forEach(course => {
-            const progress = this.userData.progress?.[course.id || course] || 100;
+        uniqueCourses.forEach(course => {
+            const courseId = course.id || course;
+            const progress = this.userData.progress?.[courseId] || 0;
+            const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
+            const courseTitle = course.title || course.name || 'Course';
+            const courseInstructor = course.instructor || 'Career Lens';
+            const courseDuration = course.duration || 'Self-paced';
+            const courseRating = course.rating || '4.5';
+            const coursePlatform = course.platform || '';
+            
             html += `
                 <div class="course-card">
                     <div class="course-image">
-                        <div class="course-badge">Completed</div>
+                        <div class="course-badge">${isCompleted ? 'Completed' : coursePlatform || 'Enrolled'}</div>
                     </div>
                     <div class="course-content">
-                        <h5 class="course-title">${course.title || course.name || 'Course'}</h5>
-                        <p class="course-instructor">Career Lens</p>
+                        <h5 class="course-title">${courseTitle}</h5>
+                        <p class="course-instructor">${courseInstructor}</p>
                         <div class="course-meta">
-                            <span><i class="fas fa-clock"></i> ${course.duration || 'Self-paced'}</span>
-                            <span class="course-rating"><i class="fas fa-star"></i> ${course.rating || '4.5'}</span>
+                            <span><i class="fas fa-clock"></i> ${courseDuration}</span>
+                            <span class="course-rating"><i class="fas fa-star"></i> ${courseRating}</span>
                         </div>
                         <div class="course-progress">
                             <div class="progress-info">
@@ -305,26 +385,44 @@ class Dashboard {
         }
         
         let html = '';
-        jobs.forEach(job => {
+        jobs.forEach((job, index) => {
+            // Handle both old format (just ID) and new format (full object)
+            const jobObj = typeof job === 'object' ? job : { id: job };
+            const jobId = jobObj.id || jobObj.title || `job-${index}`;
+            const jobTitle = jobObj.title || jobObj.name || 'Job Title';
+            const jobCompany = jobObj.company || 'Company';
+            const jobLocation = jobObj.location || 'Location';
+            const jobSalary = jobObj.salary || 'Competitive';
+            
+            // Escape single quotes for onclick
+            const safeJobId = jobId.toString().replace(/'/g, "\\'");
+            
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">${job.title || job.name || 'Job Title'}</h5>
-                            <p class="card-text text-muted">${job.company || 'Company'}</p>
+                            <h5 class="card-title">${jobTitle}</h5>
+                            <p class="card-text text-muted">${jobCompany}</p>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-map-marker-alt"></i> ${job.location || 'Location'}
+                                    <i class="fas fa-map-marker-alt"></i> ${jobLocation}
                                 </small>
                             </div>
                             <div class="mb-2">
                                 <small class="text-muted">
-                                    <i class="fas fa-dollar-sign"></i> ${job.salary || 'Competitive'}
+                                    <i class="fas fa-dollar-sign"></i> ${jobSalary}
                                 </small>
                             </div>
+                            ${jobObj.type ? `
+                            <div class="mb-2">
+                                <small class="text-muted">
+                                    <i class="fas fa-briefcase"></i> ${jobObj.type}
+                                </small>
+                            </div>
+                            ` : ''}
                             <div class="d-flex gap-2 mt-3">
                                 <a href="job-portal.html" class="btn btn-sm btn-gradient">View Details</a>
-                                <button class="btn btn-sm btn-outline-danger" onclick="window.dashboard.removeJob('${job.id || job.title}')">
+                                <button class="btn btn-sm btn-outline-danger" onclick="window.dashboard.removeJob('${safeJobId}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -347,24 +445,42 @@ class Dashboard {
             skillsGrid.innerHTML = `
                 <div class="col-12 text-center py-5">
                     <i class="fas fa-code fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">No skills tracked yet. Complete assessments to track your skills!</p>
-                    <a href="skill-assessment.html" class="btn btn-gradient mt-3">Take Assessment</a>
+                    <p class="text-muted">No skills tracked yet. Add your first skill to get started!</p>
+                    <button class="btn btn-gradient mt-3" id="addFirstSkill">
+                        <i class="fas fa-plus me-2"></i>Add Your First Skill
+                    </button>
                 </div>
             `;
+            
+            // Add event listener for the "Add First Skill" button
+            const addFirstSkillBtn = document.getElementById('addFirstSkill');
+            if (addFirstSkillBtn) {
+                addFirstSkillBtn.addEventListener('click', () => {
+                    this.showAddSkillForm();
+                });
+            }
             return;
         }
         
         let html = '';
-        skills.forEach(skill => {
+        skills.forEach((skill, index) => {
             const skillName = skill.name || skill;
             const skillLevel = skill.level || skill.proficiency || 'Beginner';
             const progress = this.getSkillProgress(skillLevel);
+            const skillId = skill.id || skill.name || skill || `skill-${index}`;
+            // Escape single quotes for onclick
+            const safeSkillId = skillId.toString().replace(/'/g, "\\'");
             
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">${skillName}</h5>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">${skillName}</h5>
+                                <button class="btn btn-sm btn-outline-danger" onclick="window.dashboard.removeSkill('${safeSkillId}')" title="Remove skill">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                             <p class="text-muted mb-2">Level: ${skillLevel}</p>
                             <div class="progress-bar-container mb-2">
                                 <div class="progress-bar" style="width: ${progress}%"></div>
@@ -422,9 +538,19 @@ class Dashboard {
         const activities = [];
         const now = new Date();
         
+        // Course enrollments (most recent)
+        const enrolledCourses = this.userData.enrolledCourses || [];
+        enrolledCourses.slice(-3).reverse().forEach((course, index) => {
+            activities.push({
+                icon: 'fa-book',
+                text: `Enrolled in: ${course.title || course.name || 'Course'}`,
+                time: course.enrolledDate ? this.getTimeAgo(now - new Date(course.enrolledDate)) : this.getTimeAgo(now - (index + 1) * 3600000)
+            });
+        });
+        
         // Course completions
-        const courses = this.userData.completedCourses || [];
-        courses.slice(0, 3).forEach((course, index) => {
+        const completedCourses = this.userData.completedCourses || [];
+        completedCourses.slice(0, 2).forEach((course, index) => {
             activities.push({
                 icon: 'fa-check-circle',
                 text: `Completed course: ${course.title || course.name || 'Course'}`,
@@ -469,15 +595,48 @@ class Dashboard {
     }
     
     initCharts() {
-        const canvas = document.getElementById('skillsChart');
-        if (!canvas || typeof Chart === 'undefined') return;
+        const chartContainer = document.querySelector('#progress .chart-container');
+        if (!chartContainer || typeof Chart === 'undefined') return;
+        
+        let canvas = document.getElementById('skillsChart');
+        
+        // Destroy existing chart if it exists
+        if (this.skillsChart) {
+            this.skillsChart.destroy();
+            this.skillsChart = null;
+        }
         
         const skills = this.userData.skills || [];
         
         if (skills.length === 0) {
-            canvas.parentElement.innerHTML = '<p class="text-muted text-center py-4">No skills data to display. Complete assessments to track your skills!</p>';
+            // Store the chart container HTML structure
+            const chartHeader = chartContainer.querySelector('.chart-header');
+            if (chartHeader) {
+                chartContainer.innerHTML = `
+                    <div class="chart-header">
+                        <h3 class="chart-title">Skill Progress</h3>
+                    </div>
+                    <p class="text-muted text-center py-4">No skills data to display. Add skills to see your progress chart!</p>
+                `;
+            }
             return;
         }
+        
+        // Restore canvas if it was replaced
+        if (!canvas || !chartContainer.querySelector('canvas')) {
+            const chartHeader = chartContainer.querySelector('.chart-header');
+            if (chartHeader) {
+                chartContainer.innerHTML = `
+                    <div class="chart-header">
+                        <h3 class="chart-title">Skill Progress</h3>
+                    </div>
+                    <canvas id="skillsChart"></canvas>
+                `;
+            }
+            canvas = document.getElementById('skillsChart');
+        }
+        
+        if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
         const labels = skills.map(s => s.name || s);
@@ -589,6 +748,31 @@ class Dashboard {
                 document.querySelector('.nav-item[data-section="overview"]')?.classList.remove('active');
             });
         }
+        
+        // Add skill button
+        const addSkillBtn = document.getElementById('addSkillBtn');
+        if (addSkillBtn) {
+            addSkillBtn.addEventListener('click', () => {
+                this.showAddSkillForm();
+            });
+        }
+        
+        // Cancel add skill
+        const cancelAddSkill = document.getElementById('cancelAddSkill');
+        if (cancelAddSkill) {
+            cancelAddSkill.addEventListener('click', () => {
+                this.hideAddSkillForm();
+            });
+        }
+        
+        // New skill form
+        const newSkillForm = document.getElementById('newSkillForm');
+        if (newSkillForm) {
+            newSkillForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.addNewSkill();
+            });
+        }
     }
     
     switchSection(section) {
@@ -630,8 +814,26 @@ class Dashboard {
             if (subtitleElement) subtitleElement.textContent = subtitles[section] || '';
             
             // Re-render section-specific content if needed
-            if (section === 'progress' && !this.skillsChart) {
+            if (section === 'progress') {
+                // Always reinitialize chart when switching to progress section to ensure it's up to date
                 setTimeout(() => this.initCharts(), 100);
+            }
+            
+            // Re-render skills when switching to skills section
+            if (section === 'skills') {
+                this.renderSkills();
+            }
+            
+            // Re-render courses when switching to courses section
+            if (section === 'courses') {
+                // Reload user data to get latest enrolled courses
+                this.loadUserData();
+                this.renderCourses();
+            }
+            
+            // Hide add skill form if switching away from skills
+            if (section !== 'skills') {
+                this.hideAddSkillForm();
             }
         }
     }
@@ -659,15 +861,21 @@ class Dashboard {
             return;
         }
         
-        this.userData.savedJobs = this.userData.savedJobs.filter(job => 
-            (job.id || job.title) !== jobId
-        );
+        // Remove from userData savedJobs
+        this.userData.savedJobs = this.userData.savedJobs.filter(job => {
+            const id = typeof job === 'object' ? (job.id || job.title) : job;
+            return id.toString() !== jobId.toString();
+        });
         
         // Also update localStorage savedJobs
         const savedJobs = JSON.parse(localStorage.getItem('savedJobs')) || [];
-        const updatedJobs = savedJobs.filter(job => (job.id || job.title) !== jobId);
+        const updatedJobs = savedJobs.filter(job => {
+            const id = typeof job === 'object' ? (job.id || job.title) : job;
+            return id.toString() !== jobId.toString();
+        });
         localStorage.setItem('savedJobs', JSON.stringify(updatedJobs));
         
+        // Update careerLensUser
         localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
         
         // Re-render
@@ -685,6 +893,114 @@ class Dashboard {
         // Search across sections
         const sections = ['overview', 'progress', 'courses', 'jobs', 'skills'];
         // This is a basic implementation - could be enhanced with actual search
+    }
+    
+    showAddSkillForm() {
+        const addSkillForm = document.getElementById('addSkillForm');
+        if (addSkillForm) {
+            addSkillForm.style.display = 'block';
+            // Scroll to form
+            addSkillForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            // Focus on skill name input
+            const skillNameInput = document.getElementById('skillName');
+            if (skillNameInput) {
+                setTimeout(() => skillNameInput.focus(), 100);
+            }
+        }
+    }
+    
+    hideAddSkillForm() {
+        const addSkillForm = document.getElementById('addSkillForm');
+        if (addSkillForm) {
+            addSkillForm.style.display = 'none';
+            // Reset form
+            const newSkillForm = document.getElementById('newSkillForm');
+            if (newSkillForm) {
+                newSkillForm.reset();
+            }
+        }
+    }
+    
+    addNewSkill() {
+        const skillNameInput = document.getElementById('skillName');
+        const skillLevelInput = document.getElementById('skillLevel');
+        
+        if (!skillNameInput || !skillLevelInput) return;
+        
+        const skillName = skillNameInput.value.trim();
+        const skillLevel = skillLevelInput.value;
+        
+        if (!skillName || !skillLevel) {
+            this.showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        // Check if skill already exists
+        const existingSkills = this.userData.skills || [];
+        const skillExists = existingSkills.some(skill => {
+            const existingName = (skill.name || skill).toLowerCase();
+            return existingName === skillName.toLowerCase();
+        });
+        
+        if (skillExists) {
+            this.showNotification('This skill already exists in your list', 'error');
+            return;
+        }
+        
+        // Add new skill
+        const newSkill = {
+            id: `skill-${Date.now()}`,
+            name: skillName,
+            level: skillLevel,
+            proficiency: skillLevel,
+            addedDate: new Date().toISOString()
+        };
+        
+        if (!this.userData.skills) {
+            this.userData.skills = [];
+        }
+        
+        this.userData.skills.push(newSkill);
+        localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+        
+        // Hide form and re-render
+        this.hideAddSkillForm();
+        this.renderSkills();
+        this.renderStats();
+        this.renderUserProfile();
+        this.renderActivity();
+        
+        // Update chart if on progress page (always reinitialize to make it dynamic)
+        if (this.currentSection === 'progress') {
+            setTimeout(() => this.initCharts(), 100);
+        }
+        
+        this.showNotification(`Skill "${skillName}" added successfully!`, 'success');
+    }
+    
+    removeSkill(skillId) {
+        if (!confirm('Are you sure you want to remove this skill?')) {
+            return;
+        }
+        
+        this.userData.skills = this.userData.skills.filter(skill => {
+            const id = skill.id || skill.name || skill;
+            return id.toString() !== skillId.toString();
+        });
+        
+        localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+        
+        // Re-render
+        this.renderSkills();
+        this.renderStats();
+        this.renderUserProfile();
+        
+        // Update chart if on progress page (always reinitialize to make it dynamic)
+        if (this.currentSection === 'progress') {
+            setTimeout(() => this.initCharts(), 100);
+        }
+        
+        this.showNotification('Skill removed successfully', 'info');
     }
     
     showNotification(message, type = 'info') {
