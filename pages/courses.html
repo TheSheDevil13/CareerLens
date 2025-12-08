@@ -423,11 +423,11 @@
         // Initialize courses
         let coursesInstance;
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', () => {
                 coursesInstance = new Courses();
                 window.courses = coursesInstance;
                 console.log('Courses initialized');
-            });
+        });
         } else {
             coursesInstance = new Courses();
             window.courses = coursesInstance;

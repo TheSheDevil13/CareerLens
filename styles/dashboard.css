@@ -1,5 +1,31 @@
 /* Dashboard Styles for Career Lens */
 
+/* Compact navbar for dashboard */
+nav.navbar.dashboard-navbar {
+    min-height: 60px;
+    padding: 0.5rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+nav.navbar.dashboard-navbar .container {
+    max-width: 100% !important;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+nav.navbar.dashboard-navbar .navbar-brand {
+    font-size: 1.1rem;
+}
+
+nav.navbar.dashboard-navbar .brand-logo {
+    font-size: 1.1rem;
+}
+
+nav.navbar.dashboard-navbar .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+}
+
 /* Ensure navbar container width is consistent with other pages */
 /* Bootstrap container max-widths: sm:540px, md:720px, lg:960px, xl:1140px, xxl:1320px */
 /* We want to match the standard container width used on other pages */
@@ -8,7 +34,7 @@ nav.navbar.fixed-top .container {
 }
 
 /* On dashboard page specifically, ensure container doesn't expand beyond standard width */
-body:has(.dashboard-container) nav.navbar .container {
+body:has(.dashboard-container) nav.navbar:not(.dashboard-navbar) .container {
     max-width: 1140px !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -62,7 +88,7 @@ body:has(.dashboard-container) nav.navbar .container {
     border-right: 1px solid var(--border-color);
     padding: 2rem 1rem;
     position: fixed;
-    top: 80px;
+    top: 60px; /* Adjusted for compact navbar */
     bottom: 0;
     left: 0;
     z-index: 100;
@@ -174,7 +200,7 @@ body:has(.dashboard-container) nav.navbar .container {
     flex: 1;
     margin-left: 280px;
     padding: 2rem;
-    padding-top: 100px;
+    padding-top: 80px; /* Adjusted for compact navbar (60px navbar + 20px spacing) */
 }
 
 .dashboard-header {
@@ -650,7 +676,7 @@ body:has(.dashboard-container) nav.navbar .container {
 @media (max-width: 1024px) {
     .dashboard-sidebar {
         transform: translateX(-100%);
-        top: 80px;
+        top: 60px; /* Adjusted for compact navbar */
     }
     
     .dashboard-sidebar.active {
@@ -659,7 +685,7 @@ body:has(.dashboard-container) nav.navbar .container {
     
     .dashboard-main {
         margin-left: 0;
-        padding-top: 100px;
+        padding-top: 80px; /* Adjusted for compact navbar */
     }
     
     .sidebar-toggle {
@@ -685,12 +711,12 @@ body:has(.dashboard-container) nav.navbar .container {
 
 @media (max-width: 768px) {
     .dashboard-sidebar {
-        top: 80px;
+        top: 60px; /* Adjusted for compact navbar */
     }
     
     .dashboard-main {
         padding: 1rem;
-        padding-top: 100px;
+        padding-top: 80px; /* Adjusted for compact navbar */
     }
     
     .stats-grid {

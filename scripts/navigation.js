@@ -1,3 +1,28 @@
+// Minimal Navigation for Dashboard - Only Home button
+function createDashboardNavigation() {
+    const basePath = '../';
+    
+    return `
+        <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top dashboard-navbar">
+            <div class="container">
+                <a class="navbar-brand" href="${basePath}index.html">
+                    <div class="brand-logo">
+                        <i class="fas fa-binoculars"></i>
+                        <span>Career<span class="gradient-text">Lens</span></span>
+                    </div>
+                </a>
+                
+                <div class="d-flex align-items-center">
+                    <a href="${basePath}index.html" class="btn btn-gradient btn-sm">
+                        <i class="fas fa-home me-1"></i>
+                        Home
+                    </a>
+                </div>
+            </div>
+        </nav>
+    `;
+}
+
 // Standard Navigation Component - Used across all pages
 function createStandardNavigation(currentPage = '') {
     const isHomePage = window.location.pathname === '/' || window.location.pathname.endsWith('index.html');
@@ -69,7 +94,6 @@ function createStandardNavigation(currentPage = '') {
                     
                     <div class="d-flex gap-2">
                         <a href="${basePath}pages/dashboard.html" class="btn btn-gradient">My Profile</a>
-                        ${isHomePage ? '<a href="#department-selector" class="btn btn-outline-light">Get Started</a>' : ''}
                     </div>
                 </div>
             </div>
@@ -85,19 +109,20 @@ function initNavigation() {
     // Determine current page
     const path = window.location.pathname;
     let currentPage = '';
+    const isDashboard = path.includes('dashboard');
     
     if (path.includes('career-paths')) currentPage = 'career-paths';
     else if (path.includes('job-portal')) currentPage = 'job-portal';
     else if (path.includes('courses')) currentPage = 'courses';
-    else if (path.includes('dashboard')) currentPage = 'dashboard';
+    else if (isDashboard) currentPage = 'dashboard';
     else if (path.includes('salary-estimator')) currentPage = 'tools';
     else if (path.includes('interview-prep')) currentPage = 'tools';
     else if (path.includes('skill-assessment')) currentPage = 'tools';
     else if (path.includes('cv-builder')) currentPage = 'tools';
     else if (path === '/' || path.endsWith('index.html')) currentPage = 'home';
     
-    // Always inject/replace navigation to ensure consistency across all pages
-    const navHTML = createStandardNavigation(currentPage);
+    // Use minimal navigation for dashboard, standard for other pages
+    const navHTML = isDashboard ? createDashboardNavigation() : createStandardNavigation(currentPage);
     
     if (existingNav) {
         existingNav.outerHTML = navHTML;
@@ -105,8 +130,8 @@ function initNavigation() {
         document.body.insertAdjacentHTML('afterbegin', navHTML);
     }
     
-    // Re-initialize Bootstrap dropdowns and collapse after navbar injection
-    if (typeof bootstrap !== 'undefined') {
+    // Re-initialize Bootstrap dropdowns and collapse after navbar injection (only if not dashboard)
+    if (typeof bootstrap !== 'undefined' && !isDashboard) {
         // Initialize dropdowns
         const dropdowns = document.querySelectorAll('.dropdown-toggle');
         dropdowns.forEach(dropdown => {
