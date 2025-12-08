@@ -1,119 +1,301 @@
-<div class="community-page">
-    <div class="container">
-        <!-- Network Visualization -->
-        <div class="network-visualization">
-            <canvas id="networkCanvas"></canvas>
-            <div class="network-controls">
-                <button class="btn-control" id="zoomIn"><i class="fas fa-search-plus"></i></button>
-                <button class="btn-control" id="zoomOut"><i class="fas fa-search-minus"></i></button>
-                <button class="btn-control" id="centerView"><i class="fas fa-crosshairs"></i></button>
-            </div>
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community - Carrier Lens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-logo">
+                    <i class="fas fa-binoculars"></i>
+                    <span>Carrier<span class="gradient-text">Lens</span></span>
+                </div>
+            </a>
         </div>
-        
-        <!-- Discussion Forums -->
-        <div class="forums-section">
-            <div class="forum-categories">
-                <div class="category-card" onclick="showForum('career-advice')">
-                    <i class="fas fa-comments fa-2x"></i>
-                    <h5>Career Advice</h5>
-                    <p>Get guidance from experienced professionals</p>
-                </div>
-                <div class="category-card" onclick="showForum('interview-exp')">
-                    <i class="fas fa-user-tie fa-2x"></i>
-                    <h5>Interview Experiences</h5>
-                    <p>Share and learn from interview stories</p>
-                </div>
-                <!-- More categories -->
+    </nav>
+
+    <div class="community-page">
+        <div class="container py-5">
+            <!-- Community Header -->
+            <div class="community-header text-center mb-5">
+                <h1 class="display-4 gradient-text">Career Community</h1>
+                <p class="lead">Connect, learn, and grow with fellow career seekers</p>
             </div>
-            
-            <div class="forum-threads">
-                <div class="thread-card">
-                    <div class="thread-header">
-                        <img src="../assets/images/avatars/avatar3.jpg" alt="User">
-                        <div>
-                            <h6>How to prepare for Google interview?</h6>
-                            <small>Posted by John Doe • 2 hours ago</small>
+
+            <!-- Community Stats -->
+            <div class="community-stats mb-5">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-users fa-3x"></i>
+                            <h3>10,000+</h3>
+                            <p>Active Members</p>
                         </div>
                     </div>
-                    <div class="thread-content">
-                        <p>I have an interview scheduled next month. Any tips?</p>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-comments fa-3x"></i>
+                            <h3>5,000+</h3>
+                            <p>Discussions</p>
+                        </div>
                     </div>
-                    <div class="thread-stats">
-                        <span><i class="fas fa-heart"></i> 24</span>
-                        <span><i class="fas fa-comment"></i> 12</span>
-                        <span><i class="fas fa-share"></i> 3</span>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-user-tie fa-3x"></i>
+                            <h3>500+</h3>
+                            <p>Mentors</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-card">
+                            <i class="fas fa-briefcase fa-3x"></i>
+                            <h3>2,000+</h3>
+                            <p>Success Stories</p>
+                        </div>
                     </div>
                 </div>
-                <!-- More threads -->
             </div>
-        </div>
-        
-        <!-- Mentor Matching -->
-        <div class="mentor-matching">
-            <h3>Find a Mentor</h3>
-            <div class="mentor-filters">
-                <input type="text" placeholder="Search mentors by skill or company...">
-                <select>
-                    <option>All Industries</option>
-                    <option>Technology</option>
-                    <option>Finance</option>
-                    <option>Healthcare</option>
-                </select>
-            </div>
-            
-            <div class="mentor-cards">
-                <div class="mentor-card">
-                    <div class="mentor-avatar">
-                        <img src="../assets/images/mentors/mentor1.jpg" alt="Mentor">
-                        <div class="online-status online"></div>
+
+            <!-- Discussion Forums -->
+            <div class="forums-section mb-5">
+                <h3 class="mb-4">Discussion Forums</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="forum-card">
+                            <i class="fas fa-comments fa-2x mb-3"></i>
+                            <h5>Career Advice</h5>
+                            <p>Get guidance from experienced professionals</p>
+                            <span class="badge bg-primary">245 discussions</span>
+                        </div>
                     </div>
-                    <div class="mentor-info">
-                        <h5>Sarah Chen</h5>
-                        <p class="mentor-role">Senior Engineer at Google</p>
-                        <div class="mentor-skills">
-                            <span class="skill-tag">React</span>
-                            <span class="skill-tag">Node.js</span>
-                            <span class="skill-tag">System Design</span>
+                    <div class="col-md-4 mb-4">
+                        <div class="forum-card">
+                            <i class="fas fa-user-tie fa-2x mb-3"></i>
+                            <h5>Interview Experiences</h5>
+                            <p>Share and learn from interview stories</p>
+                            <span class="badge bg-primary">189 discussions</span>
                         </div>
-                        <div class="mentor-stats">
-                            <span><i class="fas fa-star"></i> 4.9</span>
-                            <span><i class="fas fa-users"></i> 50+ mentees</span>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="forum-card">
+                            <i class="fas fa-graduation-cap fa-2x mb-3"></i>
+                            <h5>Study Groups</h5>
+                            <p>Collaborate and learn together</p>
+                            <span class="badge bg-primary">156 discussions</span>
                         </div>
-                        <button class="btn btn-sm btn-gradient request-mentor">Request Session</button>
                     </div>
                 </div>
-                <!-- More mentors -->
             </div>
-        </div>
-        
-        <!-- Success Stories Feed -->
-        <div class="success-feed">
-            <h3>Recent Success Stories</h3>
-            <div class="stories-grid">
-                <div class="story-post">
-                    <div class="story-header">
-                        <img src="../assets/images/avatars/avatar4.jpg" alt="User">
-                        <div>
-                            <h6>Michael Rodriguez</h6>
-                            <small>Landed job at Amazon • 1 day ago</small>
-                        </div>
-                    </div>
-                    <div class="story-content">
-                        <p>"After 3 months of following my Carrier Lens roadmap, I got an offer from Amazon!"</p>
-                        <div class="story-before-after">
-                            <div class="before">
-                                <strong>Before:</strong>
-                                <p>Junior Developer, $65k</p>
-                            </div>
-                            <div class="after">
-                                <strong>After:</strong>
-                                <p>SDE II, $145k</p>
+
+            <!-- Recent Discussions -->
+            <div class="discussions-section mb-5">
+                <h3 class="mb-4">Recent Discussions</h3>
+                <div class="discussion-list">
+                    <div class="discussion-item">
+                        <div class="discussion-header">
+                            <img src="../assets/images/avatars/default-avatar.png" alt="User" class="avatar">
+                            <div>
+                                <h6>How to prepare for Google interview?</h6>
+                                <small>Posted by John Doe • 2 hours ago</small>
                             </div>
                         </div>
+                        <div class="discussion-content">
+                            <p>I have an interview scheduled next month. Any tips from those who've been through the process?</p>
+                        </div>
+                        <div class="discussion-stats">
+                            <span><i class="fas fa-heart"></i> 24</span>
+                            <span><i class="fas fa-comment"></i> 12</span>
+                            <span><i class="fas fa-share"></i> 3</span>
+                        </div>
                     </div>
+                    <!-- More discussion items -->
                 </div>
-                <!-- More stories -->
+            </div>
+
+            <!-- Mentor Network -->
+            <div class="mentor-section mb-5">
+                <h3 class="mb-4">Find a Mentor</h3>
+                <div class="row" id="mentorGrid">
+                    <!-- Mentors loaded by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Success Stories -->
+            <div class="stories-section">
+                <h3 class="mb-4">Success Stories</h3>
+                <div class="row" id="successStories">
+                    <!-- Stories loaded by JavaScript -->
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <script>
+        // Community functionality
+        class Community {
+            constructor() {
+                this.mentors = this.getMentors();
+                this.stories = this.getStories();
+                
+                this.init();
+            }
+            
+            init() {
+                this.loadMentors();
+                this.loadStories();
+                this.initEventListeners();
+            }
+            
+            getMentors() {
+                return [
+                    {
+                        id: 1,
+                        name: "Sarah Chen",
+                        role: "Senior Engineer at Google",
+                        skills: ["React", "Node.js", "System Design"],
+                        rating: 4.9,
+                        mentees: 50,
+                        available: true
+                    },
+                    {
+                        id: 2,
+                        name: "Michael Rodriguez",
+                        role: "Product Manager at Microsoft",
+                        skills: ["Product Strategy", "UX", "Agile"],
+                        rating: 4.8,
+                        mentees: 35,
+                        available: true
+                    },
+                    {
+                        id: 3,
+                        name: "Alex Johnson",
+                        role: "Data Scientist at Amazon",
+                        skills: ["Python", "Machine Learning", "SQL"],
+                        rating: 4.7,
+                        mentees: 42,
+                        available: false
+                    }
+                ];
+            }
+            
+            getStories() {
+                return [
+                    {
+                        name: "Emily Watson",
+                        role: "Software Engineer at Spotify",
+                        story: "Carrier Lens helped me transition from biology to tech in just 6 months!",
+                        before: "Biology Graduate",
+                        after: "Software Engineer",
+                        timeline: "6 months"
+                    },
+                    {
+                        name: "David Kim",
+                        role: "Frontend Developer at Netflix",
+                        story: "The community support and mentorship were invaluable during my job search.",
+                        before: "Recent Graduate",
+                        after: "Frontend Developer",
+                        timeline: "4 months"
+                    }
+                ];
+            }
+            
+            loadMentors() {
+                const container = document.getElementById('mentorGrid');
+                if (!container) return;
+                
+                container.innerHTML = this.mentors.map(mentor => `
+                    <div class="col-md-4 mb-4">
+                        <div class="mentor-card">
+                            <div class="mentor-header">
+                                <div class="mentor-avatar">
+                                    <i class="fas fa-user-circle fa-3x"></i>
+                                    ${mentor.available ? '<span class="online-dot"></span>' : ''}
+                                </div>
+                                <div class="mentor-info">
+                                    <h5>${mentor.name}</h5>
+                                    <p class="mentor-role">${mentor.role}</p>
+                                </div>
+                            </div>
+                            <div class="mentor-skills">
+                                ${mentor.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            </div>
+                            <div class="mentor-stats">
+                                <span><i class="fas fa-star"></i> ${mentor.rating}</span>
+                                <span><i class="fas fa-users"></i> ${mentor.mentees}+ mentees</span>
+                            </div>
+                            <button class="btn btn-gradient w-100" ${!mentor.available ? 'disabled' : ''}>
+                                ${mentor.available ? 'Request Session' : 'Currently Unavailable'}
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            loadStories() {
+                const container = document.getElementById('successStories');
+                if (!container) return;
+                
+                container.innerHTML = this.stories.map(story => `
+                    <div class="col-md-6 mb-4">
+                        <div class="story-card">
+                            <div class="story-header">
+                                <div class="story-avatar">
+                                    <i class="fas fa-user-circle fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h5>${story.name}</h5>
+                                    <p class="story-role">${story.role}</p>
+                                </div>
+                            </div>
+                            <div class="story-content">
+                                <p>"${story.story}"</p>
+                                <div class="story-transition">
+                                    <div class="transition-from">
+                                        <small>Before</small>
+                                        <strong>${story.before}</strong>
+                                    </div>
+                                    <div class="transition-arrow">
+                                        <i class="fas fa-arrow-right"></i>
+                                    </div>
+                                    <div class="transition-to">
+                                        <small>After</small>
+                                        <strong>${story.after}</strong>
+                                    </div>
+                                </div>
+                                <div class="story-timeline">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Timeline: ${story.timeline}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            initEventListeners() {
+                // Mentor request buttons
+                document.querySelectorAll('.mentor-card .btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.requestMentorSession();
+                    });
+                });
+            }
+            
+            requestMentorSession() {
+                alert('Mentor session request sent! The mentor will contact you soon.');
+            }
+        }
+        
+        // Initialize community
+        document.addEventListener('DOMContentLoaded', () => {
+            window.community = new Community();
+        });
+    </script>
+</body>
+</html>
