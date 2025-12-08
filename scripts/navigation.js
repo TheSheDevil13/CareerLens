@@ -18,7 +18,6 @@ function createStandardNavigation(currentPage = '') {
                 { text: 'CV Builder', href: `${basePath}pages/cv-builder.html` }
             ]
         },
-        { text: 'Dashboard', href: `${basePath}pages/dashboard.html`, id: 'dashboard' }
     ];
     
     let navHTML = `
@@ -69,7 +68,7 @@ function createStandardNavigation(currentPage = '') {
                     </ul>
                     
                     <div class="d-flex gap-2">
-                        <a href="${basePath}pages/dashboard.html" class="btn btn-gradient">Dashboard</a>
+                        <a href="${basePath}pages/dashboard.html" class="btn btn-gradient">My Profile</a>
                         ${isHomePage ? '<a href="#department-selector" class="btn btn-outline-light">Get Started</a>' : ''}
                     </div>
                 </div>
@@ -81,30 +80,66 @@ function createStandardNavigation(currentPage = '') {
 }
 
 // Auto-inject navigation if nav element doesn't exist or is empty
-document.addEventListener('DOMContentLoaded', () => {
+function initNavigation() {
     const existingNav = document.querySelector('nav.navbar');
-    if (!existingNav || !existingNav.querySelector('.navbar-collapse')) {
-        // Determine current page
-        const path = window.location.pathname;
-        let currentPage = '';
-        
-        if (path.includes('career-paths')) currentPage = 'career-paths';
-        else if (path.includes('job-portal')) currentPage = 'job-portal';
-        else if (path.includes('courses')) currentPage = 'courses';
-        else if (path.includes('dashboard')) currentPage = 'dashboard';
-        else if (path.includes('salary-estimator')) currentPage = 'tools';
-        else if (path.includes('interview-prep')) currentPage = 'tools';
-        else if (path.includes('skill-assessment')) currentPage = 'tools';
-        else if (path.includes('cv-builder')) currentPage = 'tools';
-        else if (path === '/' || path.endsWith('index.html')) currentPage = 'home';
-        
-        const navHTML = createStandardNavigation(currentPage);
-        
-        if (existingNav) {
-            existingNav.outerHTML = navHTML;
-        } else {
-            document.body.insertAdjacentHTML('afterbegin', navHTML);
-        }
+    // Determine current page
+    const path = window.location.pathname;
+    let currentPage = '';
+    
+    if (path.includes('career-paths')) currentPage = 'career-paths';
+    else if (path.includes('job-portal')) currentPage = 'job-portal';
+    else if (path.includes('courses')) currentPage = 'courses';
+    else if (path.includes('dashboard')) currentPage = 'dashboard';
+    else if (path.includes('salary-estimator')) currentPage = 'tools';
+    else if (path.includes('interview-prep')) currentPage = 'tools';
+    else if (path.includes('skill-assessment')) currentPage = 'tools';
+    else if (path.includes('cv-builder')) currentPage = 'tools';
+    else if (path === '/' || path.endsWith('index.html')) currentPage = 'home';
+    
+    // Always inject/replace navigation to ensure consistency across all pages
+    const navHTML = createStandardNavigation(currentPage);
+    
+    if (existingNav) {
+        existingNav.outerHTML = navHTML;
+    } else {
+        document.body.insertAdjacentHTML('afterbegin', navHTML);
     }
-});
+    
+    // Re-initialize Bootstrap dropdowns and collapse after navbar injection
+    if (typeof bootstrap !== 'undefined') {
+        // Initialize dropdowns
+        const dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => {
+            new bootstrap.Dropdown(dropdown);
+        });
+        
+        // Initialize collapse
+        const collapseElements = document.querySelectorAll('[data-bs-toggle="collapse"]');
+        collapseElements.forEach(element => {
+            const target = element.getAttribute('data-bs-target');
+            if (target) {
+                const collapseElement = document.querySelector(target);
+                if (collapseElement) {
+                    new bootstrap.Collapse(collapseElement, { toggle: false });
+                }
+            }
+        });
+    }
+}
+
+// Run immediately when script loads
+// Since script is at end of body, DOM is ready
+(function() {
+    // Run immediately if DOM is ready, otherwise wait for DOMContentLoaded
+    function runInit() {
+        initNavigation();
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runInit);
+    } else {
+        // DOM already loaded - run immediately
+        runInit();
+    }
+})();
 

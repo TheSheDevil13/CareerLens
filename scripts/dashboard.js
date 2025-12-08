@@ -10,36 +10,56 @@ class Dashboard {
     }
     
     init() {
-        this.loadUserData();
-        this.initCharts();
-        this.initEventListeners();
-        this.updateDashboard();
-        this.loadRecentActivity();
-        this.loadRecommendedCourses();
+        try {
+            this.loadUserData();
+            this.initCharts();
+            this.initEventListeners();
+            this.updateDashboard();
+            this.loadRecentActivity();
+            this.loadRecommendedCourses();
+        } catch (error) {
+            console.error('Error in dashboard init:', error);
+        }
     }
     
     loadUserData() {
         // Update user profile
-        document.getElementById('userName').textContent = this.userData.name;
-        document.getElementById('userTitle').textContent = this.userData.title || 'Career Explorer';
-        document.getElementById('userAvatar').src = this.userData.avatar || '../assets/images/avatars/default-avatar.png';
+        const userNameEl = document.getElementById('userName');
+        const userTitleEl = document.getElementById('userTitle');
+        const userAvatarEl = document.getElementById('userAvatar');
+        
+        if (userNameEl) userNameEl.textContent = this.userData.name;
+        if (userTitleEl) userTitleEl.textContent = this.userData.title || 'Career Explorer';
+        if (userAvatarEl) userAvatarEl.src = this.userData.avatar || '../assets/images/default-avatar.png';
         
         // Update stats
-        document.getElementById('skillMatch').textContent = `${this.userData.skillMatch || 65}%`;
-        document.getElementById('jobMatches').textContent = this.userData.jobMatches || 12;
-        document.getElementById('courseProgress').textContent = `${this.userData.courseProgress || 45}%`;
-        document.getElementById('daysActive').textContent = this.userData.daysActive || 7;
+        const skillMatchEl = document.getElementById('skillMatch');
+        const jobMatchesEl = document.getElementById('jobMatches');
+        const courseProgressEl = document.getElementById('courseProgress');
+        const daysActiveEl = document.getElementById('daysActive');
+        
+        if (skillMatchEl) skillMatchEl.textContent = `${this.userData.skillMatch || 65}%`;
+        if (jobMatchesEl) jobMatchesEl.textContent = this.userData.jobMatches || 12;
+        if (courseProgressEl) courseProgressEl.textContent = `${this.userData.courseProgress || 45}%`;
+        if (daysActiveEl) daysActiveEl.textContent = this.userData.daysActive || 7;
     }
     
     initCharts() {
-        this.initProgressChart();
-        this.initSkillChart();
-        this.initJobTrendChart();
-        this.initSalaryChart();
+        const progressChartEl = document.getElementById('progressChart');
+        const skillChartEl = document.getElementById('skillChart');
+        const jobTrendChartEl = document.getElementById('jobTrendChart');
+        const salaryChartEl = document.getElementById('salaryChart');
+        
+        if (progressChartEl) this.initProgressChart();
+        if (skillChartEl) this.initSkillChart();
+        if (jobTrendChartEl) this.initJobTrendChart();
+        if (salaryChartEl) this.initSalaryChart();
     }
     
     initProgressChart() {
-        const ctx = document.getElementById('progressChart').getContext('2d');
+        const chartEl = document.getElementById('progressChart');
+        if (!chartEl) return;
+        const ctx = chartEl.getContext('2d');
         this.charts.progress = new Chart(ctx, {
             type: 'line',
             data: {
@@ -80,7 +100,9 @@ class Dashboard {
     }
     
     initSkillChart() {
-        const ctx = document.getElementById('skillChart').getContext('2d');
+        const chartEl = document.getElementById('skillChart');
+        if (!chartEl) return;
+        const ctx = chartEl.getContext('2d');
         this.charts.skill = new Chart(ctx, {
             type: 'radar',
             data: {
@@ -118,7 +140,9 @@ class Dashboard {
     }
     
     initJobTrendChart() {
-        const ctx = document.getElementById('jobTrendChart').getContext('2d');
+        const chartEl = document.getElementById('jobTrendChart');
+        if (!chartEl) return;
+        const ctx = chartEl.getContext('2d');
         this.charts.jobTrend = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -170,7 +194,9 @@ class Dashboard {
     }
     
     initSalaryChart() {
-        const ctx = document.getElementById('salaryChart').getContext('2d');
+        const chartEl = document.getElementById('salaryChart');
+        if (!chartEl) return;
+        const ctx = chartEl.getContext('2d');
         this.charts.salary = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -210,14 +236,20 @@ class Dashboard {
         });
         
         // Search
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.searchDashboard(e.target.value);
-        });
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.searchDashboard(e.target.value);
+            });
+        }
         
         // Notifications
-        document.getElementById('notificationBtn').addEventListener('click', () => {
-            this.showNotifications();
-        });
+        const notificationBtn = document.getElementById('notificationBtn');
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', () => {
+                this.showNotifications();
+            });
+        }
         
         // Quick actions
         document.querySelectorAll('.action-btn').forEach(btn => {
@@ -228,9 +260,12 @@ class Dashboard {
         });
         
         // Sidebar toggle for mobile
-        document.getElementById('sidebarToggle').addEventListener('click', () => {
-            document.querySelector('.dashboard-sidebar').classList.toggle('active');
-        });
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                document.querySelector('.dashboard-sidebar')?.classList.toggle('active');
+            });
+        }
         
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', (e) => {
@@ -612,6 +647,38 @@ class Dashboard {
 }
 
 // Initialize dashboard when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    window.dashboard = new Dashboard();
-});
+// Wait for all dependencies to be ready
+function initDashboard() {
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded');
+        setTimeout(initDashboard, 100);
+        return;
+    }
+    
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Small delay to ensure navigation and all elements are ready
+            setTimeout(() => {
+                try {
+                    window.dashboard = new Dashboard();
+                } catch (error) {
+                    console.error('Error initializing dashboard:', error);
+                }
+            }, 200);
+        });
+    } else {
+        // DOM already loaded - wait a bit for navigation injection
+        setTimeout(() => {
+            try {
+                window.dashboard = new Dashboard();
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+            }
+        }, 200);
+    }
+}
+
+// Start initialization
+initDashboard();
