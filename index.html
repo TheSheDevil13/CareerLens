@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +29,7 @@
     <link rel="icon" type="image/svg+xml" href="assets/icons/logo.svg">
 </head>
 <body>
-    <!-- Theme Toggle -->
+    <!-- Theme Toggle (will be created by theme-manager.js if not exists) -->
     <div class="theme-toggle">
         <button id="themeToggle" class="btn btn-sm">
             <i class="fas fa-moon"></i>
@@ -43,7 +43,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="index.html">
                 <div class="brand-logo">
                     <i class="fas fa-binoculars"></i>
                     <span>Career<span class="gradient-text">Lens</span></span>
@@ -56,10 +56,10 @@
             
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#departments">Departments</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#ai-coach">AI Coach</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#success-stories">Success Stories</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pages/career-paths.html">Career Paths</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pages/job-portal.html">Job Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="pages/courses.html">Courses</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">
                             Tools
@@ -68,13 +68,14 @@
                             <li><a class="dropdown-item" href="pages/salary-estimator.html">Salary Estimator</a></li>
                             <li><a class="dropdown-item" href="pages/interview-prep.html">Interview Prep</a></li>
                             <li><a class="dropdown-item" href="pages/skill-assessment.html">Skill Assessment</a></li>
+                            <li><a class="dropdown-item" href="pages/cv-builder.html">CV Builder</a></li>
                         </ul>
                     </li>
                 </ul>
                 
                 <div class="d-flex gap-2">
-                    <a href="pages/dashboard.html" class="btn btn-gradient">Launch Dashboard</a>
-                    <a href="#get-started" class="btn btn-outline-light">Get Started</a>
+                    <a href="pages/dashboard.html" class="btn btn-gradient">My Profile</a>
+                    <a href="pages/career-paths.html" class="btn btn-outline-light">Get Started</a>
                 </div>
             </div>
         </div>
@@ -92,10 +93,10 @@
                     <p class="lead mb-4">AI-powered platform that illuminates your career journey with personalized roadmaps, skill recommendations, and direct job connections.</p>
                     
                     <div class="hero-cta">
-                        <a href="#department-selector" class="btn btn-primary btn-lg me-3">
+                        <a href="pages/career-paths.html" class="btn btn-primary btn-lg me-3">
                             <i class="fas fa-rocket me-2"></i>Start Journey
                         </a>
-                        <a href="#video-demo" class="btn btn-outline-light btn-lg">
+                        <a href="#features" class="btn btn-outline-light btn-lg" id="watchDemoBtn">
                             <i class="fas fa-play-circle me-2"></i>Watch Demo
                         </a>
                     </div>
@@ -133,6 +134,73 @@
                             <button class="btn-control" id="zoomIn"><i class="fas fa-search-plus"></i></button>
                             <button class="btn-control" id="zoomOut"><i class="fas fa-search-minus"></i></button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Platform Features</h2>
+                <p>Everything you need to kickstart your career</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot fa-3x"></i>
+                        </div>
+                        <h4>AI Career Coach</h4>
+                        <p>Get personalized career guidance powered by AI</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-briefcase fa-3x"></i>
+                        </div>
+                        <h4>Job Portal</h4>
+                        <p>Find thousands of job opportunities tailored to your skills</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-alt fa-3x"></i>
+                        </div>
+                        <h4>CV Builder</h4>
+                        <p>Create professional resumes with customizable templates</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-tie fa-3x"></i>
+                        </div>
+                        <h4>Interview Prep</h4>
+                        <p>Practice with mock interviews and get instant feedback</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line fa-3x"></i>
+                        </div>
+                        <h4>Skill Assessment</h4>
+                        <p>Evaluate your skills and get personalized recommendations</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calculator fa-3x"></i>
+                        </div>
+                        <h4>Salary Estimator</h4>
+                        <p>Get accurate salary estimates based on your profile</p>
                     </div>
                 </div>
             </div>
@@ -181,89 +249,6 @@
         </div>
     </section>
 
-    <!-- Department Selector with 3D Cards -->
-    <section id="department-selector" class="section-light">
-        <div class="container">
-            <div class="section-header">
-                <h2>Select Your Department</h2>
-                <p>Choose your academic background to get personalized guidance</p>
-            </div>
-            
-            <div class="department-filters">
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="tech">Technology</button>
-                    <button class="filter-btn" data-filter="business">Business</button>
-                    <button class="filter-btn" data-filter="science">Science</button>
-                    <button class="filter-btn" data-filter="arts">Arts & Humanities</button>
-                </div>
-                
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="departmentSearch" placeholder="Search departments...">
-                </div>
-            </div>
-            
-            <div class="row" id="departmentGrid">
-                <!-- Departments loaded via JavaScript -->
-            </div>
-            
-            <div class="text-center mt-5">
-                <button id="loadMoreDepartments" class="btn btn-outline-primary">
-                    <i class="fas fa-plus-circle me-2"></i>Load More Departments
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Career Path Comparison Tool -->
-    <section id="path-comparison" class="section-dark">
-        <div class="container">
-            <div class="section-header">
-                <h2>Compare Career Paths</h2>
-                <p>Side-by-side comparison of different career options</p>
-            </div>
-            
-            <div class="comparison-tool">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="comparison-card" id="pathA">
-                            <div class="card-header">
-                                <h4>Select First Career Path</h4>
-                                <select class="form-select" id="pathASelect">
-                                    <option>Choose a career path</option>
-                                </select>
-                            </div>
-                            <div class="card-body" id="pathADetails">
-                                <!-- Dynamic content -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <div class="comparison-card" id="pathB">
-                            <div class="card-header">
-                                <h4>Select Second Career Path</h4>
-                                <select class="form-select" id="pathBSelect">
-                                    <option>Choose a career path</option>
-                                </select>
-                            </div>
-                            <div class="card-body" id="pathBDetails">
-                                <!-- Dynamic content -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="comparison-results mt-4">
-                    <div class="result-chart">
-                        <canvas id="comparisonChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Success Stories Carousel -->
     <section id="success-stories" class="section-light">
         <div class="container">
@@ -276,7 +261,9 @@
                 <div class="carousel-container">
                     <div class="story-card active">
                         <div class="story-image">
-                            <img src="assets/images/avatars/avatar1.jpg" alt="Success Story">
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #4A00E0, #8E2DE2); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: bold;">
+                                SJ
+                            </div>
                             <div class="story-badge">CSE Graduate</div>
                         </div>
                         <div class="story-content">
@@ -343,10 +330,10 @@
                 <div class="col-lg-4">
                     <h5>Newsletter</h5>
                     <p>Subscribe for career tips and job opportunities</p>
-                    <div class="newsletter-form">
-                        <input type="email" placeholder="Your email address">
-                        <button class="btn btn-gradient">Subscribe</button>
-                    </div>
+                    <form class="newsletter-form">
+                        <input type="email" placeholder="Your email address" required>
+                        <button type="submit" class="btn btn-gradient">Subscribe</button>
+                    </form>
                 </div>
             </div>
             
@@ -363,6 +350,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="scripts/theme-manager.js"></script>
     <script src="scripts/dummy-data.js"></script>
     <script src="scripts/threejs-visualization.js"></script>
     <script src="scripts/ai-coach.js"></script>
