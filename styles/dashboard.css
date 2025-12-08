@@ -74,6 +74,17 @@ body:has(.dashboard-container) nav.navbar:not(.dashboard-navbar) .container {
     color: var(--text-primary) !important;
 }
 
+/* Ensure small text and text-muted in cards are visible in dark mode */
+.dashboard-container .card-body small,
+.dashboard-container .card-body .text-muted {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .dashboard-container .card-body small,
+[data-theme="dark"] .dashboard-container .card-body .text-muted {
+    color: var(--text-primary) !important;
+}
+
 .dashboard-container {
     display: flex;
     min-height: 100vh;

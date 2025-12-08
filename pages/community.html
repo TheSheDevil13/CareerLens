@@ -11,7 +11,7 @@
 <body>
 
     <div class="community-page page-container">
-        <div class="container py-5">
+        <div class="container py-5" style="max-width: 1200px;">
             <!-- Community Header -->
             <div class="community-header text-center mb-5">
                 <h1 class="display-4 gradient-text">Career Community</h1>
@@ -46,7 +46,7 @@
                         <div class="stat-card">
                             <i class="fas fa-briefcase fa-3x"></i>
                             <h3>2,000+</h3>
-                            <p>Success Stories</p>
+                            
                         </div>
                     </div>
                 </div>
@@ -89,7 +89,9 @@
                 <div class="discussion-list">
                     <div class="discussion-item">
                         <div class="discussion-header">
-                            <img src="../assets/images/avatars/default-avatar.png" alt="User" class="avatar">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
                             <div>
                                 <h6>How to prepare for Google interview?</h6>
                                 <small>Posted by John Doe • 2 hours ago</small>
@@ -104,7 +106,44 @@
                             <span><i class="fas fa-share"></i> 3</span>
                         </div>
                     </div>
-                    <!-- More discussion items -->
+                    <div class="discussion-item">
+                        <div class="discussion-header">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6>Best resources for learning React in 2024?</h6>
+                                <small>Posted by Sarah M. • 5 hours ago</small>
+                            </div>
+                        </div>
+                        <div class="discussion-content">
+                            <p>Looking for the most up-to-date React tutorials and courses. Any recommendations?</p>
+                        </div>
+                        <div class="discussion-stats">
+                            <span><i class="fas fa-heart"></i> 18</span>
+                            <span><i class="fas fa-comment"></i> 8</span>
+                            <span><i class="fas fa-share"></i> 2</span>
+                        </div>
+                    </div>
+                    <div class="discussion-item">
+                        <div class="discussion-header">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h6>Career transition from non-tech to software engineering</h6>
+                                <small>Posted by Alex K. • 1 day ago</small>
+                            </div>
+                        </div>
+                        <div class="discussion-content">
+                            <p>Has anyone successfully transitioned from a non-technical background? Would love to hear your journey!</p>
+                        </div>
+                        <div class="discussion-stats">
+                            <span><i class="fas fa-heart"></i> 32</span>
+                            <span><i class="fas fa-comment"></i> 15</span>
+                            <span><i class="fas fa-share"></i> 5</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -118,7 +157,6 @@
 
             <!-- Success Stories -->
             <div class="stories-section">
-                <h3 class="mb-4">Success Stories</h3>
                 <div class="row" id="successStories">
                     <!-- Stories loaded by JavaScript -->
                 </div>

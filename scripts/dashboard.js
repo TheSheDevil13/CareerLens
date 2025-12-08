@@ -579,25 +579,30 @@ class Dashboard {
             // Escape single quotes for onclick
             const safeJobId = jobId.toString().replace(/'/g, "\\'");
             
+            // Get theme-aware text color
+            const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDarkMode ? '#f8f9fa' : '#6c757d';
+            const companyColor = isDarkMode ? '#adb5bd' : '#6c757d';
+            
             html += `
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">${jobTitle}</h5>
-                            <p class="card-text text-muted">${jobCompany}</p>
+                            <p class="card-text" style="color: ${companyColor};">${jobCompany}</p>
                             <div class="mb-2">
-                                <small class="text-muted">
+                                <small style="color: ${textColor};">
                                     <i class="fas fa-map-marker-alt"></i> ${jobLocation}
                                 </small>
                             </div>
                             <div class="mb-2">
-                                <small class="text-muted">
+                                <small style="color: ${textColor};">
                                     <i class="fas fa-dollar-sign"></i> ${jobSalary}
                                 </small>
                             </div>
                             ${jobObj.type ? `
                             <div class="mb-2">
-                                <small class="text-muted">
+                                <small style="color: ${textColor};">
                                     <i class="fas fa-briefcase"></i> ${jobObj.type}
                                 </small>
                             </div>
@@ -832,6 +837,11 @@ class Dashboard {
         const labels = skills.map(s => s.name || s);
         const data = skills.map(s => this.getSkillProgress(s.level || s.proficiency || 'Beginner'));
         
+        // Get theme-aware colors
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDarkMode ? '#f8f9fa' : '#212529';
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        
         this.skillsChart = new Chart(ctx, {
             type: 'bar',
             data: {
@@ -848,19 +858,37 @@ class Dashboard {
                 responsive: true,
                 maintainAspectRatio: true,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: textColor
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         max: 100,
                         ticks: {
                             callback: function(value) {
                                 return value + '%';
-                            }
+                            },
+                            color: textColor
+                        },
+                        grid: {
+                            color: gridColor
                         }
                     }
                 },
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)'
                     }
                 }
             }
@@ -920,6 +948,10 @@ class Dashboard {
             'rgba(253, 203, 110, 0.8)'
         ];
         
+        // Get theme-aware colors
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDarkMode ? '#f8f9fa' : '#212529';
+        
         this.overviewSkillsChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
@@ -928,7 +960,7 @@ class Dashboard {
                     label: 'Skill Proficiency',
                     data: data,
                     backgroundColor: colors.slice(0, skills.length),
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
                     borderWidth: 2
                 }]
             },
@@ -940,7 +972,7 @@ class Dashboard {
                         display: true,
                         position: 'bottom',
                         labels: {
-                            color: 'var(--text-primary)',
+                            color: textColor,
                             padding: 10,
                             font: {
                                 size: 11
@@ -948,6 +980,10 @@ class Dashboard {
                         }
                     },
                     tooltip: {
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
                         callbacks: {
                             label: function(context) {
                                 return context.label + ': ' + context.parsed + '%';
@@ -1041,6 +1077,12 @@ class Dashboard {
         
         const ctx = canvas.getContext('2d');
         
+        // Get theme-aware colors
+        const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+        const textColor = isDarkMode ? '#f8f9fa' : '#212529';
+        const textSecondaryColor = isDarkMode ? '#adb5bd' : '#6c757d';
+        const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        
         // Use horizontal bar chart for learning progress
         this.overviewLearningChart = new Chart(ctx, {
             type: 'bar',
@@ -1066,15 +1108,15 @@ class Dashboard {
                             callback: function(value) {
                                 return value + '%';
                             },
-                            color: 'var(--text-secondary)'
+                            color: textSecondaryColor
                         },
                         grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                            color: gridColor
                         }
                     },
                     y: {
                         ticks: {
-                            color: 'var(--text-primary)',
+                            color: textColor,
                             font: {
                                 size: 11
                             }
@@ -1089,6 +1131,10 @@ class Dashboard {
                         display: false
                     },
                     tooltip: {
+                        titleColor: textColor,
+                        bodyColor: textColor,
+                        backgroundColor: isDarkMode ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)',
                         callbacks: {
                             label: function(context) {
                                 return 'Progress: ' + context.parsed.x + '%';
