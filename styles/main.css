@@ -250,6 +250,71 @@ h1, h2, h3, h4, h5, h6 {
     background-clip: text;
 }
 
+/* Dropdown Menu Styles */
+.nav-item.dropdown {
+    position: relative;
+}
+
+.nav-item.dropdown:hover .dropdown-menu,
+.nav-item.dropdown .dropdown-menu.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.dropdown-menu {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 8px 20px var(--shadow-color) !important;
+    padding: 0.5rem 0 !important;
+    margin-top: 0.5rem !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.2s ease, visibility 0.2s ease !important;
+    z-index: 1050 !important;
+    min-width: 200px;
+}
+
+.dropdown-item {
+    color: var(--text-primary) !important;
+    padding: 0.75rem 1.25rem !important;
+    transition: all 0.3s ease !important;
+    font-weight: 500 !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--bg-tertiary) !important;
+    color: var(--primary-color) !important;
+}
+
+.dropdown-item:active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Dark theme specific dropdown adjustments */
+[data-theme="dark"] .dropdown-menu {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dropdown-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+[data-theme="dark"] .dropdown-item:hover,
+[data-theme="dark"] .dropdown-item:focus {
+    background: var(--bg-tertiary) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .dropdown-item:active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
 /* Hero Section */
 .hero-section {
     min-height: 100vh;

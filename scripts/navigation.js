@@ -118,7 +118,6 @@ function initNavigation() {
     else if (isDashboard) currentPage = 'dashboard';
     else if (path.includes('salary-estimator')) currentPage = 'tools';
     else if (path.includes('interview-prep')) currentPage = 'tools';
-    else if (path.includes('skill-assessment')) currentPage = 'tools';
     else if (path.includes('cv-builder')) currentPage = 'tools';
     else if (path === '/' || path.endsWith('index.html')) currentPage = 'home';
     
@@ -133,10 +132,56 @@ function initNavigation() {
     
     // Re-initialize Bootstrap dropdowns and collapse after navbar injection (only if not dashboard)
     if (typeof bootstrap !== 'undefined' && !isDashboard) {
-        // Initialize dropdowns
-        const dropdowns = document.querySelectorAll('.dropdown-toggle');
-        dropdowns.forEach(dropdown => {
-            new bootstrap.Dropdown(dropdown);
+        // Initialize dropdowns with hover support
+        const dropdownItems = document.querySelectorAll('.nav-item.dropdown');
+        dropdownItems.forEach(dropdownItem => {
+            const dropdownToggle = dropdownItem.querySelector('.dropdown-toggle');
+            const dropdownMenu = dropdownItem.querySelector('.dropdown-menu');
+            
+            if (dropdownToggle && dropdownMenu) {
+                // Initialize Bootstrap dropdown for click functionality
+                new bootstrap.Dropdown(dropdownToggle);
+                
+                // Add hover functionality
+                let hoverTimeout;
+                
+                dropdownItem.addEventListener('mouseenter', () => {
+                    clearTimeout(hoverTimeout);
+                    const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                    if (bsDropdown) {
+                        bsDropdown.show();
+                    } else {
+                        dropdownMenu.classList.add('show');
+                    }
+                });
+                
+                dropdownItem.addEventListener('mouseleave', () => {
+                    hoverTimeout = setTimeout(() => {
+                        const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                        if (bsDropdown) {
+                            bsDropdown.hide();
+                        } else {
+                            dropdownMenu.classList.remove('show');
+                        }
+                    }, 200); // Small delay to allow moving cursor to menu
+                });
+                
+                // Also handle mouseenter on the menu itself
+                dropdownMenu.addEventListener('mouseenter', () => {
+                    clearTimeout(hoverTimeout);
+                });
+                
+                dropdownMenu.addEventListener('mouseleave', () => {
+                    hoverTimeout = setTimeout(() => {
+                        const bsDropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                        if (bsDropdown) {
+                            bsDropdown.hide();
+                        } else {
+                            dropdownMenu.classList.remove('show');
+                        }
+                    }, 200);
+                });
+            }
         });
         
         // Initialize collapse
