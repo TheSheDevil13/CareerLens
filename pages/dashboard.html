@@ -3,233 +3,324 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Career Lens</title>
+    <title>My Dashboard - Career Lens</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-    <div class="dashboard-container page-container">
-        <div class="dashboard-sidebar">
+    <!-- Navigation (standardized) -->
+    
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar" id="dashboardSidebar">
             <div class="user-profile">
-                <img id="userAvatar" src="../assets/images/default-avatar.png" alt="User">
-                <h5 id="userName">John Doe</h5>
-                <p id="userTitle">Career Explorer</p>
+                <div class="user-avatar" id="userAvatar">
+                    <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #4A00E0, #8E2DE2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; font-weight: 700;">
+                        <span id="avatarInitial">U</span>
+                    </div>
+                </div>
+                <div class="user-info">
+                    <h5 id="userName">Loading...</h5>
+                    <p class="user-title" id="userTitle">Career Explorer</p>
+                </div>
+                <div class="user-stats">
+                    <div class="user-stat">
+                        <span class="value" id="statCourses">0</span>
+                        <span class="label">Courses</span>
+                    </div>
+                    <div class="user-stat">
+                        <span class="value" id="statJobs">0</span>
+                        <span class="label">Saved Jobs</span>
+                    </div>
+                    <div class="user-stat">
+                        <span class="value" id="statSkills">0</span>
+                        <span class="label">Skills</span>
+                    </div>
+                </div>
             </div>
-            <nav class="nav flex-column">
-                <a class="nav-item nav-link active" data-section="overview" href="#overview">
-                    <i class="fas fa-chart-line"></i> Overview
+            
+            <nav class="dashboard-nav">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <i class="fas fa-home"></i>
+                    <span>Overview</span>
                 </a>
-                <a class="nav-item nav-link" data-section="career-path" href="#career-path">
-                    <i class="fas fa-road"></i> Career Path
+                <a href="#progress" class="nav-item" data-section="progress">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progress</span>
                 </a>
-                <a class="nav-item nav-link" data-section="skills" href="#skills">
-                    <i class="fas fa-tools"></i> Skills Development
+                <a href="#courses" class="nav-item" data-section="courses">
+                    <i class="fas fa-book"></i>
+                    <span>My Courses</span>
+                    <span class="nav-badge" id="coursesBadge">0</span>
                 </a>
-                <a class="nav-item nav-link" data-section="jobs" href="#jobs">
-                    <i class="fas fa-briefcase"></i> Job Portal
+                <a href="#jobs" class="nav-item" data-section="jobs">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Saved Jobs</span>
+                    <span class="nav-badge" id="jobsBadge">0</span>
                 </a>
-                <a class="nav-item nav-link" data-section="cv" href="#cv">
-                    <i class="fas fa-file-alt"></i> CV Builder
+                <a href="#skills" class="nav-item" data-section="skills">
+                    <i class="fas fa-code"></i>
+                    <span>Skills</span>
+                </a>
+                <a href="#settings" class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
                 </a>
             </nav>
-            <button id="sidebarToggle" class="sidebar-toggle d-lg-none">
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Mobile Sidebar Toggle -->
+            <button class="sidebar-toggle" id="sidebarToggle">
                 <i class="fas fa-bars"></i>
             </button>
-        </div>
-
-        <div class="dashboard-main">
-            <!-- Search Bar -->
-            <div class="dashboard-header mb-4">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search dashboard...">
+            
+            <!-- Header -->
+            <div class="dashboard-header">
+                <div class="header-left">
+                    <h1 id="dashboardTitle">Dashboard</h1>
+                    <p id="dashboardSubtitle">Welcome back! Here's your career journey overview.</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search dashboard..." id="dashboardSearch">
+                    </div>
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-count" id="notificationCount" style="display: none;">0</span>
+                    </button>
                 </div>
             </div>
-
+            
             <!-- Overview Section -->
-            <div id="overviewSection" class="dashboard-section">
-                <div class="dashboard-cards mb-4">
-                    <div class="card stat-card">
-                        <div class="card-body">
-                            <h6>Skill Match</h6>
-                            <h3 id="skillMatch" class="counter-animate" data-target="65">0</h3>
-                            <p class="text-success">+5% this week</p>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="card-body">
-                            <h6>Job Matches</h6>
-                            <h3 id="jobMatches" class="counter-animate" data-target="12">0</h3>
-                            <p class="text-success">+3 new matches</p>
-                        </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="card-body">
-                            <h6>Course Progress</h6>
-                            <h3 id="courseProgress" class="counter-animate" data-target="45">0</h3>
-                            <div class="progress mt-2">
-                                <div class="progress-bar" style="width: 45%"></div>
+            <section id="overview" class="dashboard-section">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card gradient">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-graduation-cap"></i>
                             </div>
                         </div>
-                    </div>
-                    <div class="card stat-card">
-                        <div class="card-body">
-                            <h6>Days Active</h6>
-                            <h3 id="daysActive" class="counter-animate" data-target="7">0</h3>
-                            <p class="text-muted">This month</p>
+                        <div class="stat-value" id="statCompletedCourses">0</div>
+                        <div class="stat-label">Completed Courses</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Keep learning!</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Progress Overview</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="progressChart"></canvas>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-briefcase"></i>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Skill Radar</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="skillChart"></canvas>
-                            </div>
+                        <div class="stat-value" id="statSavedJobs">0</div>
+                        <div class="stat-label">Saved Jobs</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Active search</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Recent Activity</h5>
-                            </div>
-                            <div class="card-body">
-                                <div id="activityList" class="activity-list">
-                                    <!-- Loaded by JavaScript -->
-                                </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-code"></i>
                             </div>
                         </div>
+                        <div class="stat-value" id="statTotalSkills">0</div>
+                        <div class="stat-label">Skills Tracked</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Growing</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5>Recommended Courses</h5>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon">
+                                <i class="fas fa-trophy"></i>
                             </div>
-                            <div class="card-body">
-                                <div id="coursesGrid" class="courses-grid">
-                                    <!-- Loaded by JavaScript -->
-                                </div>
-                            </div>
+                        </div>
+                        <div class="stat-value" id="statAchievements">0</div>
+                        <div class="stat-label">Achievements</div>
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-star"></i>
+                            <span>Great progress!</span>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Career Path Section -->
-            <div id="career-pathSection" class="dashboard-section" style="display: none;">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Your Career Roadmap</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-point"></div>
-                                <div class="timeline-content">
-                                    <h6>Current: Graduate</h6>
-                                    <p>Complete bachelor's degree</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-point"></div>
-                                <div class="timeline-content">
-                                    <h6>Month 1-3: Skill Development</h6>
-                                    <p>Complete recommended courses</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-point"></div>
-                                <div class="timeline-content">
-                                    <h6>Month 4-6: Internship</h6>
-                                    <p>Apply for relevant internships</p>
-                                </div>
-                            </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="career-paths.html" class="action-btn">
+                        <i class="fas fa-route"></i>
+                        <span>Explore Paths</span>
+                    </a>
+                    <a href="job-portal.html" class="action-btn">
+                        <i class="fas fa-search"></i>
+                        <span>Find Jobs</span>
+                    </a>
+                    <a href="courses.html" class="action-btn">
+                        <i class="fas fa-book-open"></i>
+                        <span>Browse Courses</span>
+                    </a>
+                    <a href="cv-builder.html" class="action-btn">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Build CV</span>
+                    </a>
+                    <a href="skill-assessment.html" class="action-btn">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Assess Skills</span>
+                    </a>
+                </div>
+                
+                <!-- Progress Trackers -->
+                <div class="progress-tracker">
+                    <div class="tracker-header">
+                        <h3 class="tracker-title">Learning Progress</h3>
+                        <div class="tracker-actions">
+                            <button class="btn btn-sm btn-outline-primary" id="viewAllProgress">View All</button>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Skills Section -->
-            <div id="skillsSection" class="dashboard-section" style="display: none;">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Skills Development</h4>
-                        <button class="btn btn-sm btn-primary action-btn" data-action="add-skill">
-                            <i class="fas fa-plus"></i> Add Skill
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="skillChart"></canvas>
+                    <div class="progress-bars" id="progressBars">
+                        <!-- Progress items loaded by JavaScript -->
                     </div>
                 </div>
-            </div>
-
+                
+                <!-- Recent Activity -->
+                <div class="activity-feed">
+                    <div class="tracker-header">
+                        <h3 class="tracker-title">Recent Activity</h3>
+                    </div>
+                    <div class="activity-list" id="activityList">
+                        <!-- Activity items loaded by JavaScript -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Progress Section -->
+            <section id="progress" class="dashboard-section" style="display: none;">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Skill Progress</h3>
+                    </div>
+                    <canvas id="skillsChart"></canvas>
+                </div>
+                
+                <div class="progress-tracker">
+                    <div class="tracker-header">
+                        <h3 class="tracker-title">Course Progress</h3>
+                    </div>
+                    <div class="progress-bars" id="courseProgressBars">
+                        <!-- Course progress loaded by JavaScript -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Courses Section -->
+            <section id="courses" class="dashboard-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <h2>My Courses</h2>
+                        <p>Track your learning journey</p>
+                    </div>
+                </div>
+                <div class="courses-grid" id="coursesGrid">
+                    <!-- Course cards loaded by JavaScript -->
+                </div>
+            </section>
+            
             <!-- Jobs Section -->
-            <div id="jobsSection" class="dashboard-section" style="display: none;">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Job Opportunities</h4>
-                        <button class="btn btn-sm btn-primary action-btn" data-action="find-jobs">
-                            <i class="fas fa-search"></i> Find Jobs
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="jobTrendChart"></canvas>
+            <section id="jobs" class="dashboard-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <h2>Saved Jobs</h2>
+                        <p>Your job opportunities</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- CV Section -->
-            <div id="cvSection" class="dashboard-section" style="display: none;">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>CV Builder</h4>
-                        <button class="btn btn-sm btn-primary action-btn" data-action="update-cv">
-                            <i class="fas fa-edit"></i> Update CV
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <p>Manage your CV and download it anytime.</p>
-                        <a href="cv-builder.html" class="btn btn-gradient">Go to CV Builder</a>
+                <div class="row" id="savedJobsGrid">
+                    <!-- Job cards loaded by JavaScript -->
+                </div>
+            </section>
+            
+            <!-- Skills Section -->
+            <section id="skills" class="dashboard-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <h2>My Skills</h2>
+                        <p>Track and improve your skills</p>
                     </div>
                 </div>
-            </div>
-        </div>
+                <div class="row" id="skillsGrid">
+                    <!-- Skills loaded by JavaScript -->
+                </div>
+            </section>
+            
+            <!-- Settings Section -->
+            <section id="settings" class="dashboard-section" style="display: none;">
+                <div class="dashboard-header">
+                    <div class="header-left">
+                        <h2>Settings</h2>
+                        <p>Manage your account preferences</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="mb-3">Profile Information</h5>
+                        <form id="profileForm">
+                            <div class="mb-3">
+                                <label for="profileName" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="profileName" placeholder="Your name">
+                            </div>
+                            <div class="mb-3">
+                                <label for="profileEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="profileEmail" placeholder="your.email@example.com">
+                            </div>
+                            <div class="mb-3">
+                                <label for="profileDepartment" class="form-label">Department</label>
+                                <select class="form-select" id="profileDepartment">
+                                    <option value="">Select department</option>
+                                    <option value="cse">Computer Science</option>
+                                    <option value="ece">Electronics</option>
+                                    <option value="mech">Mechanical</option>
+                                    <option value="civil">Civil</option>
+                                    <option value="business">Business</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-gradient">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="mb-3">Preferences</h5>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="notificationsToggle" checked>
+                            <label class="form-check-label" for="notificationsToggle">Enable Notifications</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="emailUpdatesToggle" checked>
+                            <label class="form-check-label" for="emailUpdatesToggle">Email Updates</label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <!-- Theme Toggle -->
-    <div class="theme-toggle">
-        <button id="themeToggle" class="btn btn-sm">
-            <i class="fas fa-moon"></i>
-            <i class="fas fa-sun"></i>
-        </button>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Scripts -->
     <script src="../scripts/navigation.js"></script>
     <script src="../scripts/theme-manager.js"></script>
-    <script src="../scripts/dummy-data.js"></script>
     <script src="../scripts/dashboard.js"></script>
 </body>
 </html>

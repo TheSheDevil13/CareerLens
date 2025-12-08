@@ -1,5 +1,53 @@
 /* Dashboard Styles for Career Lens */
 
+/* Ensure navbar container width is consistent with other pages */
+/* Bootstrap container max-widths: sm:540px, md:720px, lg:960px, xl:1140px, xxl:1320px */
+/* We want to match the standard container width used on other pages */
+nav.navbar.fixed-top .container {
+    max-width: 1140px;
+}
+
+/* On dashboard page specifically, ensure container doesn't expand beyond standard width */
+body:has(.dashboard-container) nav.navbar .container {
+    max-width: 1140px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+}
+
+/* Override Bootstrap card styles for theme */
+.dashboard-container .card,
+.dashboard-main .card {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.dashboard-container .card-header {
+    background: var(--bg-tertiary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.dashboard-container .card-body {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dashboard-container .card-body h1,
+.dashboard-container .card-body h2,
+.dashboard-container .card-body h3,
+.dashboard-container .card-body h4,
+.dashboard-container .card-body h5,
+.dashboard-container .card-body h6 {
+    color: var(--text-primary) !important;
+}
+
+.dashboard-container .card-body p {
+    color: var(--text-primary) !important;
+}
+
 .dashboard-container {
     display: flex;
     min-height: 100vh;
@@ -158,13 +206,32 @@
     width: 300px;
 }
 
-.search-box input {
+.search-box input,
+.search-bar input {
     width: 100%;
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     border-radius: 50px;
     border: 1px solid var(--border-color);
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     color: var(--text-primary);
+}
+
+.search-bar {
+    position: relative;
+    width: 100%;
+}
+
+.search-bar i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    z-index: 1;
+}
+
+.search-bar input {
+    padding-left: 2.5rem;
 }
 
 .search-box i {
@@ -210,11 +277,12 @@
 }
 
 .stat-card {
-    background: var(--bg-primary);
-    border: 1px solid var(--border-color);
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
     border-radius: 15px;
     padding: 1.5rem;
     transition: all 0.3s ease;
+    color: var(--text-primary) !important;
 }
 
 .stat-card:hover {
@@ -284,11 +352,12 @@
 
 /* Progress Trackers */
 .progress-tracker {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    color: var(--text-primary);
 }
 
 .tracker-header {
@@ -366,11 +435,12 @@
 
 /* Recent Activity */
 .activity-feed {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    color: var(--text-primary);
 }
 
 .activity-list {
@@ -426,11 +496,12 @@
 }
 
 .course-card {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     overflow: hidden;
     transition: all 0.3s ease;
+    color: var(--text-primary);
 }
 
 .course-card:hover {
@@ -448,12 +519,13 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: white;
+    background: var(--bg-secondary);
     color: var(--primary-color);
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
     font-size: 0.8rem;
     font-weight: 600;
+    border: 1px solid var(--border-color);
 }
 
 .course-content {
@@ -502,10 +574,11 @@
 }
 
 .chart-container {
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     padding: 1.5rem;
+    color: var(--text-primary);
 }
 
 .chart-header {
@@ -539,7 +612,7 @@
     align-items: center;
     gap: 0.5rem;
     padding: 1.5rem;
-    background: var(--bg-primary);
+    background: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 15px;
     text-decoration: none;
