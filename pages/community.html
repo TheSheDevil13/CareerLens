@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,10 +17,33 @@
                     <span>Career<span class="gradient-text">Lens</span></span>
                 </div>
             </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="career-paths.html">Career Paths</a></li>
+                    <li class="nav-item"><a class="nav-link" href="job-portal.html">Job Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">Tools</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="salary-estimator.html">Salary Estimator</a></li>
+                            <li><a class="dropdown-item" href="interview-prep.html">Interview Prep</a></li>
+                            <li><a class="dropdown-item" href="skill-assessment.html">Skill Assessment</a></li>
+                            <li><a class="dropdown-item" href="cv-builder.html">CV Builder</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="dashboard.html" class="btn btn-gradient">My Profile</a>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div class="community-page">
+    <div class="community-page page-container">
         <div class="container py-5">
             <!-- Community Header -->
             <div class="community-header text-center mb-5">
@@ -297,5 +320,16 @@
             window.community = new Community();
         });
     </script>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/theme-manager.js"></script>
 </body>
 </html>
