@@ -175,7 +175,8 @@ class CVBuilder {
         document.querySelectorAll('.color-option').forEach(opt => {
             opt.classList.remove('selected');
         });
-        event.target.classList.add('selected');
+        const target = event?.target || document.querySelector(`[data-color="${color}"]`);
+        if (target) target.classList.add('selected');
         
         this.userData.colors = this.userData.colors || {};
         this.userData.colors.primary = color;
@@ -186,7 +187,8 @@ class CVBuilder {
         document.querySelectorAll('.font-option').forEach(opt => {
             opt.classList.remove('selected');
         });
-        event.target.classList.add('selected');
+        const target = event?.target || document.querySelector(`[data-font="${font}"]`);
+        if (target) target.classList.add('selected');
         
         this.userData.font = font;
         this.renderPreview();
@@ -321,53 +323,50 @@ class CVBuilder {
     }
     
     downloadPDF() {
-        // Create a PDF using jsPDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Get CV content
+        // Simple PDF download using print functionality
         const cvContent = document.getElementById('cvPreview');
+        if (!cvContent) {
+            alert('CV preview not found. Please fill in your CV details first.');
+            return;
+        }
         
-        // Use html2canvas to capture the CV as an image
-        html2canvas(cvContent).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            
-            doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            doc.save('cv.pdf');
-        });
+        // Create a new window with CV content
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>CV - ${this.userData.header?.name || 'Resume'}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    ${document.querySelector('style')?.innerHTML || ''}
+                </style>
+            </head>
+            <body>
+                ${cvContent.innerHTML}
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
     }
     
     downloadDOCX() {
-        // Create a DOCX using docx
-        const { Document, Packer, Paragraph, TextRun } = window.docx;
+        // Simple text export
+        const cvContent = document.getElementById('cvPreview');
+        if (!cvContent) {
+            alert('CV preview not found. Please fill in your CV details first.');
+            return;
+        }
         
-        const doc = new Document({
-            sections: [{
-                properties: {},
-                children: [
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Curriculum Vitae",
-                                bold: true,
-                                size: 32
-                            })
-                        ]
-                    }),
-                    // Add more content here
-                ]
-            }]
-        });
-        
-        Packer.toBlob(doc).then(blob => {
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'cv.docx';
-            link.click();
-        });
+        const text = cvContent.innerText || cvContent.textContent;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'cv.txt';
+        link.click();
+        URL.revokeObjectURL(url);
     }
     
     saveDraft() {
