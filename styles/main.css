@@ -66,6 +66,12 @@ body {
     transition: background-color 0.3s ease;
 }
 
+/* Standard page container padding for fixed navbar */
+.page-container {
+    padding-top: 100px;
+    min-height: calc(100vh - 100px);
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-secondary);
@@ -132,6 +138,34 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 1px solid var(--glass-border);
     padding: 1rem 0;
     transition: all 0.3s ease;
+}
+
+.glass-nav .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.glass-nav .navbar-nav .nav-link:hover {
+    color: white;
+    transform: translateY(-2px);
+}
+
+.glass-nav .navbar-nav .nav-link.active {
+    color: white;
+}
+
+.glass-nav .navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
 }
 
 .glass-nav .navbar-brand {
@@ -406,7 +440,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Department Cards - 3D Effect */
 .department-card-3d {
     perspective: 1000px;
-    height: 300px;
+    height: 350px;
     cursor: pointer;
 }
 
@@ -424,25 +458,39 @@ h1, h2, h3, h4, h5, h6 {
     transform: rotateY(180deg);
 }
 
-.card-front, .card-back {
+.card-front {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
-    padding: 2rem;
+    padding: 1.5rem;
     background: var(--bg-primary);
     border: 1px solid var(--border-color);
     border-radius: 20px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     text-align: center;
+    overflow-y: auto;
 }
 
 .card-back {
-    transform: rotateY(180deg);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    padding: 1.5rem;
     background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    transform: rotateY(180deg);
+    overflow-y: auto;
 }
 
 .card-glow {
@@ -489,6 +537,207 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0.25rem 0.75rem;
     border-radius: 15px;
     font-size: 0.8rem;
+}
+
+/* Department Filters */
+.department-filters {
+    margin-bottom: 3rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: white;
+}
+
+.search-box {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 2px solid var(--border-color);
+    border-radius: 50px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(74, 0, 224, 0.1);
+}
+
+/* Section Header */
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-header p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Department Grid */
+#departmentGrid {
+    min-height: 400px;
+}
+
+/* Card Front Content */
+.card-front .card-icon {
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+.card-front h4 {
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.card-front .text-muted {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.department-stats {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.department-stats .stat {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+.card-tags .tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 15px;
+    color: var(--text-primary);
+}
+
+.explore-btn-front {
+    margin-top: auto;
+    flex-shrink: 0;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    z-index: 10;
+    position: relative;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.explore-btn-front:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(74, 0, 224, 0.4);
+}
+
+/* Card Back Content */
+.card-back h5 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.card-back ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1rem;
+    text-align: left;
+    flex: 1;
+    overflow-y: auto;
+    width: 100%;
+    min-height: 0;
+}
+
+.card-back ul li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.card-back ul li:last-child {
+    border-bottom: none;
+}
+
+.card-back p.text-muted {
+    flex: 1;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.explore-btn {
+    margin-top: auto;
+    flex-shrink: 0;
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 600;
 }
 
 /* Comparison Tool */
@@ -551,9 +800,10 @@ h1, h2, h3, h4, h5, h6 {
 .carousel-container {
     display: flex;
     gap: 2rem;
-    overflow-x: auto;
+    overflow: hidden;
     padding: 1rem;
-    scrollbar-width: none;
+    position: relative;
+    min-height: 400px;
 }
 
 .carousel-container::-webkit-scrollbar {
@@ -561,19 +811,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .story-card {
-    flex: 0 0 400px;
+    flex: 0 0 100%;
+    max-width: 600px;
+    margin: 0 auto;
     background: var(--bg-primary);
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 10px 30px var(--shadow-color);
-    opacity: 0.5;
-    transform: scale(0.9);
-    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s ease;
+    display: none;
 }
 
 .story-card.active {
     opacity: 1;
-    transform: scale(1);
+    transform: translateX(0);
+    display: block;
 }
 
 .story-image {
@@ -851,6 +1105,56 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+/* Features Section */
+.feature-card {
+    background: var(--bg-primary);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid var(--border-color);
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--shadow-color);
+}
+
+.feature-icon {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+}
+
+/* Newsletter Form */
+.newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.newsletter-form input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.newsletter-form button {
+    white-space: nowrap;
+}
+
 .fade-out {
     animation: fadeOut 0.3s ease forwards;
 }
@@ -887,7 +1191,28 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .department-card-3d {
-        height: 250px;
+        height: 320px;
+    }
+    
+    .card-front, .card-back {
+        padding: 1.25rem;
+    }
+    
+    .card-front h4 {
+        font-size: 1.1rem;
+    }
+    
+    .card-front .text-muted {
+        font-size: 0.85rem;
+    }
+    
+    .department-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .card-back ul {
+        max-height: 120px;
     }
     
     .comparison-tool .row {
@@ -904,4 +1229,198 @@ h1, h2, h3, h4, h5, h6 {
         gap: 1rem;
         text-align: center;
     }
+}
+
+/* Career Paths Page Styles */
+.career-paths-page {
+    padding-top: 100px;
+    min-height: 100vh;
+}
+
+.department-card {
+    background: var(--bg-primary);
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.department-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px var(--shadow-color);
+    border-color: var(--primary-color);
+}
+
+.career-path-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.career-path-card:hover {
+    transform: translateX(5px);
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.career-path-card.active {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(74, 0, 224, 0.1) 0%, rgba(142, 45, 226, 0.1) 100%);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--primary-color);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 2rem;
+    padding-left: 2rem;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 3px solid var(--bg-primary);
+}
+
+.timeline-date {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.timeline-content {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.skill-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.skill-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.skill-progress {
+    margin-bottom: 0.5rem;
+}
+
+.course-card {
+    background: var(--bg-primary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.course-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.course-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.course-details {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.job-card {
+    background: var(--glass-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1.5px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 1rem;
+}
+
+.job-header .company {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.job-details {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+}
+
+.comparison-card {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.comparison-stats p {
+    margin-bottom: 0.5rem;
+}
+
+.path-header {
+    margin-bottom: 2rem;
+}
+
+#careerPathsSelector {
+    margin-top: 1rem;
 }
