@@ -183,16 +183,29 @@
                     </a>
                 </div>
                 
-                <!-- Progress Trackers -->
-                <div class="progress-tracker">
-                    <div class="tracker-header">
-                        <h3 class="tracker-title">Learning Progress</h3>
-                        <div class="tracker-actions">
-                            <button class="btn btn-sm btn-outline-primary" id="viewAllProgress">View All</button>
+                <!-- Progress Sections - Different Layout for Overview -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="progress-tracker">
+                            <div class="tracker-header">
+                                <h3 class="tracker-title">Learning Progress</h3>
+                                <div class="tracker-actions">
+                                    <button class="btn btn-sm btn-outline-primary" id="viewAllProgress">View All</button>
+                                </div>
+                            </div>
+                            <div class="progress-bars" id="progressBars">
+                                <!-- Progress items loaded by JavaScript -->
+                            </div>
                         </div>
                     </div>
-                    <div class="progress-bars" id="progressBars">
-                        <!-- Progress items loaded by JavaScript -->
+                    
+                    <div class="col-lg-4">
+                        <div class="chart-container" style="height: 100%;">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Skill Progress</h3>
+                            </div>
+                            <canvas id="overviewSkillsChart" style="max-height: 300px;"></canvas>
+                        </div>
                     </div>
                 </div>
                 
@@ -209,19 +222,25 @@
             
             <!-- Progress Section -->
             <section id="progress" class="dashboard-section" style="display: none;">
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <h3 class="chart-title">Skill Progress</h3>
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3 class="chart-title">Skill Progress</h3>
+                            </div>
+                            <canvas id="skillsChart"></canvas>
+                        </div>
                     </div>
-                    <canvas id="skillsChart"></canvas>
-                </div>
-                
-                <div class="progress-tracker">
-                    <div class="tracker-header">
-                        <h3 class="tracker-title">Course Progress</h3>
-                    </div>
-                    <div class="progress-bars" id="courseProgressBars">
-                        <!-- Course progress loaded by JavaScript -->
+                    
+                    <div class="col-lg-6">
+                        <div class="progress-tracker">
+                            <div class="tracker-header">
+                                <h3 class="tracker-title">Course Progress</h3>
+                            </div>
+                            <div class="progress-bars" id="courseProgressBars">
+                                <!-- Course progress loaded by JavaScript -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

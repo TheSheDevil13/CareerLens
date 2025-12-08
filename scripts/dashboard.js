@@ -28,11 +28,22 @@ class Dashboard {
         this.initEventListeners();
         this.initCharts();
         
+        // Initialize overview charts if on overview section
+        if (this.currentSection === 'overview') {
+            setTimeout(() => {
+                this.initOverviewChart();
+                this.initOverviewLearningChart();
+            }, 100);
+        }
+        
         // Refresh data when window gains focus (user returns from another page)
         window.addEventListener('focus', () => {
             this.loadUserData();
             if (this.currentSection === 'courses') {
                 this.renderCourses();
+            } else if (this.currentSection === 'overview') {
+                this.renderProgress(); // This will call initOverviewLearningChart() internally
+                setTimeout(() => this.initOverviewChart(), 100);
             }
             this.renderStats();
             this.renderUserProfile();
@@ -230,13 +241,35 @@ class Dashboard {
         const progressBars = document.getElementById('progressBars');
         if (!progressBars) return;
         
-        const progress = this.userData.progress || {};
-        const courses = this.userData.completedCourses || [];
+        // Check if we're in overview section (chart view) or progress section (detailed view)
+        const isOverview = progressBars.closest('#overview') !== null;
         
-        if (courses.length === 0 && Object.keys(progress).length === 0) {
+        // For overview, use chart instead of list
+        if (isOverview) {
+            this.initOverviewLearningChart();
+            return;
+        }
+        
+        const progress = this.userData.progress || {};
+        const enrolledCourses = this.userData.enrolledCourses || [];
+        const completedCourses = this.userData.completedCourses || [];
+        const allCourses = [...enrolledCourses, ...completedCourses];
+        
+        // Remove duplicates
+        const uniqueCourses = [];
+        const seenIds = new Set();
+        allCourses.forEach(course => {
+            const courseId = course.id || course;
+            if (!seenIds.has(courseId)) {
+                seenIds.add(courseId);
+                uniqueCourses.push(course);
+            }
+        });
+        
+        if (uniqueCourses.length === 0 && Object.keys(progress).length === 0) {
             progressBars.innerHTML = `
                 <div class="text-center py-4">
-                    <p class="text-muted">No progress tracked yet. Start a course to see your progress!</p>
+                    <p class="text-muted">No progress tracked yet. Enroll in a course to see your progress!</p>
                     <a href="courses.html" class="btn btn-gradient mt-2">Browse Courses</a>
                 </div>
             `;
@@ -245,51 +278,177 @@ class Dashboard {
         
         let html = '';
         
-        // Course progress
-        courses.forEach((course, index) => {
-            const courseProgress = progress[course.id] || progress[course] || 100; // Completed courses are 100%
+        // Course progress - show enrolled courses with dynamic progress
+        uniqueCourses.forEach((course, index) => {
+            const courseId = course.id || course;
+            const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
+            let courseProgress = progress[courseId];
+            
+            // If no progress set, calculate based on enrollment date or default to 0
+            if (courseProgress === undefined || courseProgress === null) {
+                if (isCompleted) {
+                    courseProgress = 100;
+                } else if (course.enrolledDate) {
+                    // Calculate progress based on time enrolled (simulate learning)
+                    const enrolledDate = new Date(course.enrolledDate);
+                    const daysSinceEnrollment = Math.floor((Date.now() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
+                    // Simulate 1-2% progress per day, max 95% (unless completed)
+                    courseProgress = Math.min(95, Math.max(0, daysSinceEnrollment * 1.5));
+                } else {
+                    courseProgress = 0;
+                }
+                
+                // Save calculated progress
+                if (!this.userData.progress) {
+                    this.userData.progress = {};
+                }
+                this.userData.progress[courseId] = Math.round(courseProgress);
+                localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+            }
+            
+            const courseTitle = course.title || course.name || `Course ${index + 1}`;
+            const roundedProgress = Math.round(courseProgress);
+            
+            // Detailed view for progress page - with bars and controls
             html += `
                 <div class="progress-item">
                     <div class="progress-icon">
                         <i class="fas fa-book"></i>
                     </div>
-                    <div class="progress-details">
+                    <div class="progress-details" style="flex: 1;">
                         <div class="progress-info">
-                            <span class="progress-label">${course.title || course.name || `Course ${index + 1}`}</span>
-                            <span class="progress-percent">${courseProgress}%</span>
+                            <span class="progress-label">${courseTitle}</span>
+                            <span class="progress-percent">${roundedProgress}%</span>
                         </div>
                         <div class="progress-bar-container">
-                            <div class="progress-bar" style="width: ${courseProgress}%"></div>
+                            <div class="progress-bar" style="width: ${roundedProgress}%"></div>
                         </div>
+                    </div>
+                    <div class="progress-actions" style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.dashboard.updateProgress(${courseId}, -10)" title="Decrease progress">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.dashboard.updateProgress(${courseId}, 10)" title="Increase progress">
+                            <i class="fas fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             `;
         });
         
-        // Additional progress items
-        Object.keys(progress).forEach(key => {
-            if (!courses.some(c => (c.id || c) === key)) {
-                const value = progress[key];
-                html += `
-                    <div class="progress-item">
-                        <div class="progress-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div class="progress-details">
-                            <div class="progress-info">
-                                <span class="progress-label">${this.formatProgressKey(key)}</span>
-                                <span class="progress-percent">${value}%</span>
-                            </div>
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: ${value}%"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+        progressBars.innerHTML = html || '<p class="text-muted">No progress to display.</p>';
+    }
+    
+    renderCourseProgress() {
+        const courseProgressBars = document.getElementById('courseProgressBars');
+        if (!courseProgressBars) return;
+        
+        // Use the same logic as renderProgress
+        const progress = this.userData.progress || {};
+        const enrolledCourses = this.userData.enrolledCourses || [];
+        const completedCourses = this.userData.completedCourses || [];
+        const allCourses = [...enrolledCourses, ...completedCourses];
+        
+        // Remove duplicates
+        const uniqueCourses = [];
+        const seenIds = new Set();
+        allCourses.forEach(course => {
+            const courseId = course.id || course;
+            if (!seenIds.has(courseId)) {
+                seenIds.add(courseId);
+                uniqueCourses.push(course);
             }
         });
         
-        progressBars.innerHTML = html || '<p class="text-muted">No progress to display.</p>';
+        if (uniqueCourses.length === 0) {
+            courseProgressBars.innerHTML = `
+                <div class="text-center py-4">
+                    <p class="text-muted">No courses enrolled yet. Enroll in a course to track your progress!</p>
+                    <a href="courses.html" class="btn btn-gradient mt-2">Browse Courses</a>
+                </div>
+            `;
+            return;
+        }
+        
+        let html = '';
+        
+        uniqueCourses.forEach((course, index) => {
+            const courseId = course.id || course;
+            const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
+            let courseProgress = progress[courseId];
+            
+            // Calculate progress if not set
+            if (courseProgress === undefined || courseProgress === null) {
+                if (isCompleted) {
+                    courseProgress = 100;
+                } else if (course.enrolledDate) {
+                    const enrolledDate = new Date(course.enrolledDate);
+                    const daysSinceEnrollment = Math.floor((Date.now() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
+                    courseProgress = Math.min(95, Math.max(0, daysSinceEnrollment * 1.5));
+                } else {
+                    courseProgress = 0;
+                }
+                
+                if (!this.userData.progress) {
+                    this.userData.progress = {};
+                }
+                this.userData.progress[courseId] = Math.round(courseProgress);
+                localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+            }
+            
+            const courseTitle = course.title || course.name || `Course ${index + 1}`;
+            const roundedProgress = Math.round(courseProgress);
+            
+            html += `
+                <div class="progress-item">
+                    <div class="progress-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="progress-details" style="flex: 1;">
+                        <div class="progress-info">
+                            <span class="progress-label">${courseTitle}</span>
+                            <span class="progress-percent">${roundedProgress}%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${roundedProgress}%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-actions" style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.dashboard.updateProgress(${courseId}, -10)" title="Decrease progress">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="window.dashboard.updateProgress(${courseId}, 10)" title="Increase progress">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+        
+        courseProgressBars.innerHTML = html;
+    }
+    
+    updateProgress(courseId, change) {
+        if (!this.userData.progress) {
+            this.userData.progress = {};
+        }
+        
+        const currentProgress = this.userData.progress[courseId] || 0;
+        const newProgress = Math.max(0, Math.min(100, currentProgress + change));
+        
+        this.userData.progress[courseId] = newProgress;
+        localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+        
+        // Re-render both progress sections
+        this.renderProgress();
+        this.renderCourseProgress();
+        this.renderCourses(); // Update course cards too
+        
+        // Show notification
+        const course = [...(this.userData.enrolledCourses || []), ...(this.userData.completedCourses || [])]
+            .find(c => (c.id || c) === courseId);
+        const courseName = course?.title || course?.name || 'Course';
+        this.showNotification(`Progress updated: ${courseName} - ${newProgress}%`, 'info');
     }
     
     formatProgressKey(key) {
@@ -330,13 +489,36 @@ class Dashboard {
         let html = '';
         uniqueCourses.forEach(course => {
             const courseId = course.id || course;
-            const progress = this.userData.progress?.[courseId] || 0;
+            let progress = this.userData.progress?.[courseId];
+            
+            // Calculate progress if not set
+            if (progress === undefined || progress === null) {
+                const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
+                if (isCompleted) {
+                    progress = 100;
+                } else if (course.enrolledDate) {
+                    const enrolledDate = new Date(course.enrolledDate);
+                    const daysSinceEnrollment = Math.floor((Date.now() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
+                    progress = Math.min(95, Math.max(0, daysSinceEnrollment * 1.5));
+                } else {
+                    progress = 0;
+                }
+                
+                // Save calculated progress
+                if (!this.userData.progress) {
+                    this.userData.progress = {};
+                }
+                this.userData.progress[courseId] = Math.round(progress);
+                localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
+            }
+            
             const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
             const courseTitle = course.title || course.name || 'Course';
             const courseInstructor = course.instructor || 'Career Lens';
             const courseDuration = course.duration || 'Self-paced';
             const courseRating = course.rating || '4.5';
             const coursePlatform = course.platform || '';
+            const roundedProgress = Math.round(progress);
             
             html += `
                 <div class="course-card">
@@ -353,10 +535,10 @@ class Dashboard {
                         <div class="course-progress">
                             <div class="progress-info">
                                 <span>Progress</span>
-                                <span>${progress}%</span>
+                                <span>${roundedProgress}%</span>
                             </div>
                             <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: ${progress}%"></div>
+                                <div class="progress-bar" style="width: ${roundedProgress}%"></div>
                             </div>
                         </div>
                     </div>
@@ -595,6 +777,14 @@ class Dashboard {
     }
     
     initCharts() {
+        // Initialize chart for Progress page
+        this.initProgressPageChart();
+        
+        // Initialize chart for Overview page
+        this.initOverviewChart();
+    }
+    
+    initProgressPageChart() {
         const chartContainer = document.querySelector('#progress .chart-container');
         if (!chartContainer || typeof Chart === 'undefined') return;
         
@@ -671,6 +861,239 @@ class Dashboard {
                 plugins: {
                     legend: {
                         display: false
+                    }
+                }
+            }
+        });
+    }
+    
+    initOverviewChart() {
+        const chartContainer = document.querySelector('#overview .chart-container');
+        if (!chartContainer || typeof Chart === 'undefined') return;
+        
+        let canvas = document.getElementById('overviewSkillsChart');
+        
+        // Destroy existing chart if it exists
+        if (this.overviewSkillsChart) {
+            this.overviewSkillsChart.destroy();
+            this.overviewSkillsChart = null;
+        }
+        
+        const skills = this.userData.skills || [];
+        
+        if (skills.length === 0) {
+            chartContainer.innerHTML = `
+                <div class="chart-header">
+                    <h3 class="chart-title">Skill Progress</h3>
+                </div>
+                <p class="text-muted text-center py-4">No skills data to display. Add skills to see your progress chart!</p>
+            `;
+            return;
+        }
+        
+        // Restore canvas if it was replaced
+        if (!canvas || !chartContainer.querySelector('canvas')) {
+            chartContainer.innerHTML = `
+                <div class="chart-header">
+                    <h3 class="chart-title">Skill Progress</h3>
+                </div>
+                <canvas id="overviewSkillsChart"></canvas>
+            `;
+            canvas = document.getElementById('overviewSkillsChart');
+        }
+        
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const labels = skills.map(s => s.name || s);
+        const data = skills.map(s => this.getSkillProgress(s.level || s.proficiency || 'Beginner'));
+        
+        // Generate colors for pie chart
+        const colors = [
+            'rgba(74, 0, 224, 0.8)',
+            'rgba(142, 45, 226, 0.8)',
+            'rgba(255, 142, 0, 0.8)',
+            'rgba(0, 184, 148, 0.8)',
+            'rgba(9, 132, 227, 0.8)',
+            'rgba(116, 185, 255, 0.8)',
+            'rgba(255, 118, 117, 0.8)',
+            'rgba(253, 203, 110, 0.8)'
+        ];
+        
+        this.overviewSkillsChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Skill Proficiency',
+                    data: data,
+                    backgroundColor: colors.slice(0, skills.length),
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            color: 'var(--text-primary)',
+                            padding: 10,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    initOverviewLearningChart() {
+        const progressBars = document.getElementById('progressBars');
+        if (!progressBars || typeof Chart === 'undefined') return;
+        
+        let canvas = document.getElementById('overviewLearningChart');
+        
+        // Destroy existing chart if it exists
+        if (this.overviewLearningChart) {
+            this.overviewLearningChart.destroy();
+            this.overviewLearningChart = null;
+        }
+        
+        const progress = this.userData.progress || {};
+        const enrolledCourses = this.userData.enrolledCourses || [];
+        const completedCourses = this.userData.completedCourses || [];
+        const allCourses = [...enrolledCourses, ...completedCourses];
+        
+        // Remove duplicates
+        const uniqueCourses = [];
+        const seenIds = new Set();
+        allCourses.forEach(course => {
+            const courseId = course.id || course;
+            if (!seenIds.has(courseId)) {
+                seenIds.add(courseId);
+                uniqueCourses.push(course);
+            }
+        });
+        
+        if (uniqueCourses.length === 0) {
+            progressBars.innerHTML = '<p class="text-muted text-center py-4">No courses enrolled yet. Enroll in a course to track your progress!</p>';
+            return;
+        }
+        
+        // Prepare data for chart
+        const labels = [];
+        const data = [];
+        const colors = [];
+        
+        uniqueCourses.forEach((course, index) => {
+            const courseId = course.id || course;
+            const isCompleted = completedCourses.some(c => (c.id || c) === courseId);
+            let courseProgress = progress[courseId];
+            
+            if (courseProgress === undefined || courseProgress === null) {
+                if (isCompleted) {
+                    courseProgress = 100;
+                } else if (course.enrolledDate) {
+                    const enrolledDate = new Date(course.enrolledDate);
+                    const daysSinceEnrollment = Math.floor((Date.now() - enrolledDate.getTime()) / (1000 * 60 * 60 * 24));
+                    courseProgress = Math.min(95, Math.max(0, daysSinceEnrollment * 1.5));
+                } else {
+                    courseProgress = 0;
+                }
+            }
+            
+            const courseTitle = course.title || course.name || `Course ${index + 1}`;
+            labels.push(courseTitle.length > 20 ? courseTitle.substring(0, 20) + '...' : courseTitle);
+            data.push(Math.round(courseProgress));
+            
+            // Color based on progress
+            if (courseProgress >= 100) {
+                colors.push('rgba(0, 184, 148, 0.8)'); // Green for completed
+            } else if (courseProgress >= 50) {
+                colors.push('rgba(9, 132, 227, 0.8)'); // Blue for in progress
+            } else {
+                colors.push('rgba(255, 142, 0, 0.8)'); // Orange for just started
+            }
+        });
+        
+        // Create canvas if it doesn't exist
+        if (!canvas || !progressBars.querySelector('canvas')) {
+            progressBars.innerHTML = '<canvas id="overviewLearningChart" style="max-height: 400px;"></canvas>';
+            canvas = document.getElementById('overviewLearningChart');
+        }
+        
+        if (!canvas) return;
+        
+        // Set container style for chart
+        progressBars.style.minHeight = '300px';
+        
+        const ctx = canvas.getContext('2d');
+        
+        // Use horizontal bar chart for learning progress
+        this.overviewLearningChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Progress %',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c.replace('0.8', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            },
+                            color: 'var(--text-secondary)'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: 'var(--text-primary)',
+                            font: {
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Progress: ' + context.parsed.x + '%';
+                            }
+                        }
                     }
                 }
             }
@@ -816,7 +1239,9 @@ class Dashboard {
             // Re-render section-specific content if needed
             if (section === 'progress') {
                 // Always reinitialize chart when switching to progress section to ensure it's up to date
-                setTimeout(() => this.initCharts(), 100);
+                setTimeout(() => this.initProgressPageChart(), 100);
+                // Render course progress for progress page
+                this.renderCourseProgress();
             }
             
             // Re-render skills when switching to skills section
@@ -829,6 +1254,13 @@ class Dashboard {
                 // Reload user data to get latest enrolled courses
                 this.loadUserData();
                 this.renderCourses();
+            }
+            
+            // Re-render progress in overview when switching to overview
+            if (section === 'overview') {
+                this.renderProgress(); // This will call initOverviewLearningChart() internally
+                // Initialize overview skill chart
+                setTimeout(() => this.initOverviewChart(), 100);
             }
             
             // Hide add skill form if switching away from skills
@@ -970,9 +1402,11 @@ class Dashboard {
         this.renderUserProfile();
         this.renderActivity();
         
-        // Update chart if on progress page (always reinitialize to make it dynamic)
+        // Update charts if on progress or overview page
         if (this.currentSection === 'progress') {
-            setTimeout(() => this.initCharts(), 100);
+            setTimeout(() => this.initProgressPageChart(), 100);
+        } else if (this.currentSection === 'overview') {
+            setTimeout(() => this.initOverviewChart(), 100);
         }
         
         this.showNotification(`Skill "${skillName}" added successfully!`, 'success');
@@ -995,9 +1429,11 @@ class Dashboard {
         this.renderStats();
         this.renderUserProfile();
         
-        // Update chart if on progress page (always reinitialize to make it dynamic)
+        // Update charts if on progress or overview page
         if (this.currentSection === 'progress') {
-            setTimeout(() => this.initCharts(), 100);
+            setTimeout(() => this.initProgressPageChart(), 100);
+        } else if (this.currentSection === 'overview') {
+            setTimeout(() => this.initOverviewChart(), 100);
         }
         
         this.showNotification('Skill removed successfully', 'info');
