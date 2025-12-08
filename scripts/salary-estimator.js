@@ -26,7 +26,7 @@ class SalaryEstimator {
         const careerSelect = document.getElementById('careerPathSelect');
         
         // Populate departments
-        const departments = ['CSE', 'EE', 'ME', 'CE', 'BBA', 'Finance', 'Marketing', 'Healthcare'];
+        const departments = ['CSE', 'EE', 'ME', 'CE', 'Finance', 'Marketing', 'Healthcare'];
         
         departments.forEach(dept => {
             const option = document.createElement('option');
@@ -79,10 +79,15 @@ class SalaryEstimator {
                 { id: 'electronics', name: 'Electronics Engineer' },
                 { id: 'control', name: 'Control Systems Engineer' }
             ],
-            'BBA': [
-                { id: 'finance', name: 'Financial Analyst' },
-                { id: 'marketing', name: 'Marketing Manager' },
-                { id: 'hr', name: 'HR Specialist' }
+            'Finance': [
+                { id: 'financial-analyst', name: 'Financial Analyst' },
+                { id: 'investment-banker', name: 'Investment Banker' },
+                { id: 'accountant', name: 'Accountant' }
+            ],
+            'Marketing': [
+                { id: 'marketing-manager', name: 'Marketing Manager' },
+                { id: 'digital-marketing', name: 'Digital Marketing Specialist' },
+                { id: 'brand-manager', name: 'Brand Manager' }
             ]
         };
         
