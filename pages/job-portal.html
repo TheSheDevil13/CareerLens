@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal - Career Lens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .job-card { background: var(--glass-bg); border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px var(--shadow-color); transition: transform 0.2s; border: 1px solid var(--glass-border); }
+        .job-card:hover { transform: translateY(-4px); box-shadow: 0 4px 16px var(--shadow-color); }
+        .job-header { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .company-logo { width: 60px; height: 60px; background: linear-gradient(135deg, #4A00E0, #8E2DE2); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; }
+        .job-info { flex: 1; margin-left: 16px; }
+        .job-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+        .company-name { color: #6c757d; margin-bottom: 8px; }
+        .job-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+        .job-meta span { color: #6c757d; font-size: 14px; }
+        .job-actions { display: flex; gap: 8px; }
+        .btn-action { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+        .save-job { background: var(--bg-tertiary); color: var(--primary-color); }
+        .save-job.saved { background: #4A00E0; color: white; }
+        .apply-job { background: #4A00E0; color: white; }
+        .apply-job.applied { background: #00b894; }
+        .job-body { margin: 16px 0; }
+        .requirement-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .tag { background: var(--bg-tertiary); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+        .job-footer { display: flex; gap: 12px; margin-top: 16px; }
+        .filters-panel { background: var(--bg-secondary); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .application-modal, .job-details-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-primary); border-radius: 12px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; justify-content: flex-end; }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; }
+        .job-notification { position: fixed; top: 100px; right: 20px; background: var(--bg-primary); padding: 16px 20px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow-color); z-index: 2000; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border-color); }
+        .notification-success { border-left: 4px solid #00b894; }
+        .notification-info { border-left: 4px solid #0984e3; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark glass-nav fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-logo">
+                    <i class="fas fa-binoculars"></i>
+                    <span>Career<span class="gradient-text">Lens</span></span>
+                </div>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="career-paths.html">Career Paths</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="job-portal.html">Job Portal</a></li>
+                    <li class="nav-item"><a class="nav-link" href="courses.html">Courses</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">Tools</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="salary-estimator.html">Salary Estimator</a></li>
+                            <li><a class="dropdown-item" href="interview-prep.html">Interview Prep</a></li>
+                            <li><a class="dropdown-item" href="skill-assessment.html">Skill Assessment</a></li>
+                            <li><a class="dropdown-item" href="cv-builder.html">CV Builder</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="dashboard.html" class="btn btn-gradient">My Profile</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="job-portal-container page-container">
+        <div class="container py-5">
+            <div class="page-header text-center mb-5">
+                <h1 class="display-4 gradient-text">Job Portal</h1>
+                <p class="lead">Find your dream job from thousands of opportunities</p>
+            </div>
+
+            <!-- Filters Panel -->
+            <div class="filters-panel">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Search</label>
+                        <input type="text" id="searchFilter" class="form-control" placeholder="Search jobs...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Department</label>
+                        <select id="departmentFilter" class="form-select">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Experience</label>
+                        <select id="experienceFilter" class="form-select">
+                            <option value="">All Levels</option>
+                            <option value="entry">Entry Level</option>
+                            <option value="mid">Mid Level</option>
+                            <option value="senior">Senior</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Job Type</label>
+                        <select id="typeFilter" class="form-select">
+                            <option value="">All Types</option>
+                            <option value="Full-time">Full-time</option>
+                            <option value="Part-time">Part-time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Location</label>
+                        <select id="locationFilter" class="form-select">
+                            <option value="">All Locations</option>
+                            <option value="remote">Remote</option>
+                            <option value="onsite">On-site</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Min Salary: <span id="salaryValue">$0k+</span></label>
+                        <input type="range" id="salaryFilter" class="form-range" min="0" max="200" value="0">
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label">&nbsp;</label>
+                        <button id="clearFilters" class="btn btn-outline-secondary w-100">Clear</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sort and View Options -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <span id="jobCount" class="text-muted">Loading jobs...</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary sort-option active" data-sort="recent">Most Recent</button>
+                        <button class="btn btn-outline-primary sort-option" data-sort="salary">Highest Salary</button>
+                        <button class="btn btn-outline-primary sort-option" data-sort="relevant">Most Relevant</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Listings -->
+            <div id="jobListings" class="list-view">
+                <!-- Jobs loaded by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/theme-manager.js"></script>
+    <script src="../scripts/dummy-data.js"></script>
+    <script src="../scripts/job-portal.js"></script>
+</body>
+</html>
+
+
+
