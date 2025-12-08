@@ -1,11 +1,11 @@
-// AI Career Coach for Carrier Lens
+// AI Career Coach for Career Lens
 
 class AICareerCoach {
     constructor() {
         this.conversation = [];
         this.isTyping = false;
         this.responses = this.getResponses();
-        this.userProfile = JSON.parse(localStorage.getItem('carrierLensUser')) || {};
+        this.userProfile = JSON.parse(localStorage.getItem('careerLensUser')) || {};
         
         this.init();
     }

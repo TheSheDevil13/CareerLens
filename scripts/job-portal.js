@@ -1,4 +1,4 @@
-// Job Portal for Carrier Lens
+// Job Portal for Career Lens
 
 class JobPortal {
     constructor() {
@@ -418,7 +418,7 @@ class JobPortal {
     
     calculateMatchScore(job) {
         // Calculate match score based on user profile and job requirements
-        const userProfile = JSON.parse(localStorage.getItem('carrierLensUser')) || {};
+        const userProfile = JSON.parse(localStorage.getItem('careerLensUser')) || {};
         const userSkills = userProfile.skills || [];
         
         let score = 50; // Base score
@@ -575,7 +575,7 @@ class JobPortal {
         }
         
         // Quick apply with saved profile
-        const userProfile = JSON.parse(localStorage.getItem('carrierLensUser')) || {};
+        const userProfile = JSON.parse(localStorage.getItem('careerLensUser')) || {};
         if (!userProfile.name || !userProfile.email) {
             alert('Please complete your profile before quick applying.');
             return;

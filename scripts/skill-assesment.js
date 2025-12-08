@@ -1,4 +1,4 @@
-// Skill Assessment for Carrier Lens
+// Skill Assessment for Career Lens
 
 class SkillAssessment {
     constructor() {
@@ -544,7 +544,7 @@ class SkillAssessment {
                         <p>has successfully completed the Skill Assessment with a score of</p>
                         <div class="score">${totalPercentage}%</div>
                         <p>Date: ${new Date().toLocaleDateString()}</p>
-                        <p>Carrier Lens Skill Assessment</p>
+                        <p>Career Lens Skill Assessment</p>
                     </div>
                 </body>
                 </html>
@@ -567,7 +567,7 @@ class SkillAssessment {
     
     shareResults() {
         const totalPercentage = Math.round((this.score / (this.questions.length * 10)) * 100);
-        const text = `I scored ${totalPercentage}% on my Carrier Lens skill assessment! #CareerDevelopment #Skills`;
+        const text = `I scored ${totalPercentage}% on my Career Lens skill assessment! #CareerDevelopment #Skills`;
         
         if (navigator.share) {
             navigator.share({

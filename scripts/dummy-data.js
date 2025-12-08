@@ -1,4 +1,4 @@
-// Extensive Dummy Data for Carrier Lens
+// Extensive Dummy Data for Career Lens
 
 const departments = [
     {
@@ -78,7 +78,7 @@ const departments = [
                 role: "Software Engineer at Spotify",
                 timeline: "6 months",
                 salaryIncrease: "300%",
-                testimonial: "Carrier Lens showed me exactly what skills I needed to learn. The roadmap was spot on!"
+                testimonial: "Career Lens showed me exactly what skills I needed to learn. The roadmap was spot on!"
             }
         ]
     },
@@ -226,7 +226,7 @@ const communityPosts = [
             role: "Software Engineer",
             company: "Google"
         },
-        content: "Just landed my dream job at Google! Thanks to Carrier Lens for the perfect roadmap.",
+        content: "Just landed my dream job at Google! Thanks to Career Lens for the perfect roadmap.",
         likes: 245,
         comments: 42,
         shares: 18,

@@ -1,4 +1,4 @@
-// Salary Estimator for Carrier Lens
+// Salary Estimator for Career Lens
 
 class SalaryEstimator {
     constructor() {

@@ -1,9 +1,9 @@
-# Carrier Lens - AI-Powered Career Path Platform
+# Career Lens - AI-Powered Career Path Platform
 
-![Carrier Lens Banner](assets/images/banner.png)
+![Career Lens Banner](assets/images/banner.png)
 
 ## 🚀 Overview
-Carrier Lens is an innovative platform that combines LinkedIn-style networking with job portal functionality, specifically designed for fresh graduates and career seekers. The platform provides AI-powered career guidance, personalized roadmaps, skill development courses, and job opportunities.
+Career Lens is an innovative platform that combines LinkedIn-style networking with job portal functionality, specifically designed for fresh graduates and career seekers. The platform provides AI-powered career guidance, personalized roadmaps, skill development courses, and job opportunities.
 
 ## ✨ Features
 

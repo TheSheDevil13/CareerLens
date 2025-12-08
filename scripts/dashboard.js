@@ -1,8 +1,8 @@
-// Dashboard Functionality for Carrier Lens
+// Dashboard Functionality for Career Lens
 
 class Dashboard {
     constructor() {
-        this.userData = JSON.parse(localStorage.getItem('carrierLensUser')) || this.createDefaultUser();
+        this.userData = JSON.parse(localStorage.getItem('careerLensUser')) || this.createDefaultUser();
         this.currentSection = 'overview';
         this.charts = {};
         
@@ -401,7 +401,7 @@ class Dashboard {
         if (skill) {
             this.userData.skills = this.userData.skills || [];
             this.userData.skills.push(skill);
-            localStorage.setItem('carrierLensUser', JSON.stringify(this.userData));
+            localStorage.setItem('careerLensUser', JSON.stringify(this.userData));
             this.showNotification(`Added skill: ${skill}`, 'success');
             this.updateSkillChart();
         }

@@ -1,4 +1,4 @@
-// Interview Preparation Simulator for Carrier Lens
+// Interview Preparation Simulator for Career Lens
 
 class InterviewPrep {
     constructor() {
@@ -792,7 +792,7 @@ class InterviewPrep {
         const maxScore = this.questions.length * 10;
         const percentage = Math.round((totalScore / maxScore) * 100);
         
-        const text = `I scored ${percentage}% on my mock interview! #CarrierLens #InterviewPrep`;
+        const text = `I scored ${percentage}% on my mock interview! #CareerLens #InterviewPrep`;
         
         if (navigator.share) {
             navigator.share({

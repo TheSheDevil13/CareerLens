@@ -1,4 +1,4 @@
-// CV Builder for Carrier Lens
+// CV Builder for Career Lens
 
 class CVBuilder {
     constructor() {

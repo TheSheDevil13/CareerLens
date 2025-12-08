@@ -1,9 +1,9 @@
-// Carrier Lens Main Application
+// Career Lens Main Application
 
-class CarrierLensApp {
+class CareerLensApp {
     constructor() {
         this.currentTheme = 'light';
-        this.userData = JSON.parse(localStorage.getItem('carrierLensUser')) || this.createDefaultUser();
+        this.userData = JSON.parse(localStorage.getItem('careerLensUser')) || this.createDefaultUser();
         this.init();
     }
 
@@ -628,5 +628,5 @@ class CarrierLensApp {
 
 // Initialize app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    window.app = new CarrierLensApp();
+    window.app = new CareerLensApp();
 });
