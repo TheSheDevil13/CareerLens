@@ -6,10 +6,6 @@ const HARDCODED_CREDENTIALS = {
     password: '123'
 };
 
-// Session configuration
-const SESSION_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-const APP_VERSION = '1.0.0'; // Increment this to force logout on all users
-
 class LoginManager {
     constructor() {
         this.init();
@@ -75,48 +71,14 @@ class LoginManager {
         if (status) {
             localStorage.setItem('isLoggedIn', 'true');
             localStorage.setItem('loginTime', Date.now().toString());
-            localStorage.setItem('appVersion', APP_VERSION);
         } else {
-            this.clearLoginData();
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('loginTime');
         }
-    }
-    
-    clearLoginData() {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('loginTime');
     }
     
     isLoggedIn() {
-        // Check version first - if version changed, clear old data
-        const storedVersion = localStorage.getItem('appVersion');
-        if (storedVersion !== APP_VERSION) {
-            this.clearLoginData();
-            localStorage.setItem('appVersion', APP_VERSION);
-            return false;
-        }
-        
-        // Check if login flag exists
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
-            return false;
-        }
-        
-        // Check session expiration
-        const loginTime = localStorage.getItem('loginTime');
-        if (!loginTime) {
-            this.clearLoginData();
-            return false;
-        }
-        
-        const now = Date.now();
-        const timeSinceLogin = now - parseInt(loginTime, 10);
-        
-        // If session expired, clear login data
-        if (timeSinceLogin > SESSION_DURATION) {
-            this.clearLoginData();
-            return false;
-        }
-        
-        return true;
+        return localStorage.getItem('isLoggedIn') === 'true';
     }
     
     redirectToDashboard() {
@@ -127,8 +89,8 @@ class LoginManager {
     }
     
     static logout() {
-        const loginManager = new LoginManager();
-        loginManager.clearLoginData();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('loginTime');
         // Determine correct path to login based on current location
         const currentPath = window.location.pathname;
         const basePath = currentPath.includes('pages/') ? '../' : '';
@@ -136,9 +98,8 @@ class LoginManager {
     }
     
     static checkAuth() {
-        // Create a temporary instance to use isLoggedIn method
-        const loginManager = new LoginManager();
-        const isLoggedIn = loginManager.isLoggedIn();
+        // Check if user is logged in, redirect to login if not
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         const currentPath = window.location.pathname;
         const currentHref = window.location.href;
         const isLoginPage = currentPath.includes('login.html') || currentHref.includes('login.html');
