@@ -15,6 +15,20 @@ class CVBuilder {
         this.loadTemplates();
         this.loadUserData();
         this.initEventListeners();
+        
+        // Apply template styles if template was previously selected
+        if (this.userData.templateId) {
+            const template = this.getTemplate(this.userData.templateId);
+            if (template) {
+                this.applyTemplateStyles(template);
+            }
+        } else {
+            // Apply default template styles
+            const defaultTemplate = this.getTemplate(this.currentTemplate);
+            this.applyTemplateStyles(defaultTemplate);
+            this.selectTemplate(this.currentTemplate);
+        }
+        
         this.renderPreview();
         this.updateProgress();
     }
@@ -38,36 +52,115 @@ class CVBuilder {
     
     selectTemplate(templateId) {
         this.currentTemplate = templateId;
+        const template = this.getTemplate(templateId);
+        
+        // Update selected state in UI
         document.querySelectorAll('.template-item').forEach(item => {
             item.classList.remove('selected');
         });
-        document.querySelector(`.template-item[onclick*="${templateId}"]`).classList.add('selected');
+        const selectedItem = document.querySelector(`.template-item[onclick*="${templateId}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('selected');
+        }
+        
+        // Apply template colors to userData
+        if (!this.userData.colors) {
+            this.userData.colors = {};
+        }
+        this.userData.colors.primary = template.color1;
+        this.userData.colors.secondary = template.color2;
+        this.userData.templateId = templateId;
+        
+        // Apply template-specific styles
+        this.applyTemplateStyles(template);
+        
+        this.saveData();
         this.renderPreview();
+    }
+    
+    applyTemplateStyles(template) {
+        // Store template style preferences
+        if (!this.userData.templateStyles) {
+            this.userData.templateStyles = {};
+        }
+        
+        // Different templates can have different layouts
+        const styles = {
+            1: { // Modern Professional
+                headerAlign: 'center',
+                sectionStyle: 'standard',
+                font: 'Arial, sans-serif'
+            },
+            2: { // Creative
+                headerAlign: 'left',
+                sectionStyle: 'creative',
+                font: 'Georgia, serif'
+            },
+            3: { // Minimalist
+                headerAlign: 'center',
+                sectionStyle: 'minimal',
+                font: 'Helvetica, sans-serif'
+            }
+        };
+        
+        this.userData.templateStyles = styles[template.id] || styles[1];
     }
     
     loadUserData() {
         const savedData = localStorage.getItem('cvData');
         if (savedData) {
-            this.userData = JSON.parse(savedData);
+            try {
+                this.userData = JSON.parse(savedData);
+                // Restore template selection if saved
+                if (this.userData.templateId) {
+                    this.currentTemplate = this.userData.templateId;
+                }
+            } catch (e) {
+                this.userData = this.getDefaultUserData();
+            }
         }
         
         // Populate form fields
         this.sections.forEach(section => {
             const inputs = document.querySelectorAll(`[data-field="${section}"]`);
             inputs.forEach(input => {
-                if (this.userData[section] && this.userData[section][input.name]) {
+                if (section === 'experience' || section === 'education') {
+                    // Handle array-based sections
+                    const match = input.name.match(/(\d+)$/);
+                    const index = match ? parseInt(match[1]) - 1 : 0;
+                    const fieldName = input.name.replace(/\d+$/, '');
+                    
+                    if (this.userData[section]?.items?.[index]?.[fieldName]) {
+                        input.value = this.userData[section].items[index][fieldName];
+                    }
+                } else if (this.userData[section] && this.userData[section][input.name]) {
                     input.value = this.userData[section][input.name];
                 }
             });
         });
+        
+        // Load skill tags
+        if (this.userData.skills?.items) {
+            const skillsContainer = document.querySelector('.skill-tags');
+            if (skillsContainer) {
+                skillsContainer.innerHTML = '';
+                this.userData.skills.items.forEach(skill => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.textContent = skill;
+                    tag.innerHTML += `<button class="remove-tag" onclick="cvBuilder.removeSkillTag('${skill}')">&times;</button>`;
+                    skillsContainer.appendChild(tag);
+                });
+            }
+        }
     }
     
     initEventListeners() {
-        // Form inputs
-        document.querySelectorAll('input, textarea').forEach(input => {
-            input.addEventListener('input', (e) => {
+        // Form inputs - use event delegation for dynamic content
+        document.addEventListener('input', (e) => {
+            if (e.target.matches('input[data-field], textarea[data-field]')) {
                 this.updateField(e.target);
-            });
+            }
         });
         
         // Section controls
@@ -131,7 +224,7 @@ class CVBuilder {
     }
     
     updateField(input) {
-        const section = input.dataset.section;
+        const section = input.dataset.section || input.dataset.field;
         const field = input.name;
         const value = input.value;
         
@@ -139,8 +232,30 @@ class CVBuilder {
             this.userData[section] = {};
         }
         
-        this.userData[section][field] = value;
+        // Handle experience and education as arrays
+        if (section === 'experience' || section === 'education') {
+            if (!this.userData[section].items) {
+                this.userData[section].items = [{}];
+            }
+            
+            // Extract index from field name (e.g., "title1" -> index 0)
+            const match = field.match(/(\d+)$/);
+            const index = match ? parseInt(match[1]) - 1 : 0;
+            
+            // Ensure array is large enough
+            while (this.userData[section].items.length <= index) {
+                this.userData[section].items.push({});
+            }
+            
+            // Extract field name without number (e.g., "title1" -> "title")
+            const fieldName = field.replace(/\d+$/, '');
+            this.userData[section].items[index][fieldName] = value;
+        } else {
+            this.userData[section][field] = value;
+        }
+        
         this.saveData();
+        this.updateProgress();
         this.renderPreview();
     }
     
@@ -203,9 +318,16 @@ class CVBuilder {
                 this.userData.skills = { items: [] };
             }
             
+            // Check if skill already exists
+            if (this.userData.skills.items.includes(skill)) {
+                this.showNotification('Skill already added', 'info');
+                return;
+            }
+            
             this.userData.skills.items.push(skill);
             input.value = '';
             this.saveData();
+            this.updateProgress();
             this.renderPreview();
             
             // Update skill tags display
@@ -213,8 +335,29 @@ class CVBuilder {
             if (tagsContainer) {
                 const tag = document.createElement('span');
                 tag.className = 'skill-tag';
-                tag.textContent = skill;
+                tag.innerHTML = `${skill}<button class="remove-tag" onclick="cvBuilder.removeSkillTag('${skill}')">&times;</button>`;
                 tagsContainer.appendChild(tag);
+            }
+        }
+    }
+    
+    removeSkillTag(skill) {
+        if (this.userData.skills?.items) {
+            this.userData.skills.items = this.userData.skills.items.filter(s => s !== skill);
+            this.saveData();
+            this.updateProgress();
+            this.renderPreview();
+            
+            // Update UI
+            const tagsContainer = document.querySelector('.skill-tags');
+            if (tagsContainer) {
+                tagsContainer.innerHTML = '';
+                this.userData.skills.items.forEach(s => {
+                    const tag = document.createElement('span');
+                    tag.className = 'skill-tag';
+                    tag.innerHTML = `${s}<button class="remove-tag" onclick="cvBuilder.removeSkillTag('${s}')">&times;</button>`;
+                    tagsContainer.appendChild(tag);
+                });
             }
         }
     }
@@ -228,71 +371,92 @@ class CVBuilder {
     }
     
     generateCVHTML(template) {
-        const colors = this.userData.colors || { primary: '#4A00E0', secondary: '#8E2DE2' };
-        const font = this.userData.font || 'Arial, sans-serif';
+        // Use template colors if available, otherwise use userData colors, otherwise default
+        const templateColors = template ? { primary: template.color1, secondary: template.color2 } : null;
+        const colors = this.userData.colors || templateColors || { primary: '#4A00E0', secondary: '#8E2DE2' };
+        const templateStyles = this.userData.templateStyles || { headerAlign: 'center', sectionStyle: 'standard' };
+        const font = this.userData.font || templateStyles.font || 'Arial, sans-serif';
+        
+        // Determine header alignment
+        const headerAlign = templateStyles.headerAlign || 'center';
+        const headerClass = `cv-header cv-header-${templateStyles.sectionStyle || 'standard'}`;
         
         return `
-            <div class="cv-template" style="font-family: ${font};">
+            <div class="cv-template cv-template-${template?.category || 'professional'}" style="font-family: ${font};">
                 <!-- Header -->
                 ${this.userData.header ? `
-                    <div class="cv-header" style="border-bottom-color: ${colors.primary};">
+                    <div class="${headerClass}" style="text-align: ${headerAlign}; border-bottom-color: ${colors.primary}; border-bottom-width: ${templateStyles.sectionStyle === 'minimal' ? '1px' : '3px'};">
                         <h1 class="cv-name" style="color: ${colors.primary};">${this.userData.header?.name || 'Your Name'}</h1>
-                        <h2 class="cv-title">${this.userData.header?.title || 'Your Title'}</h2>
-                        <div class="cv-contact">
-                            ${this.userData.header?.email ? `<span>${this.userData.header.email}</span>` : ''}
-                            ${this.userData.header?.phone ? `<span>${this.userData.header.phone}</span>` : ''}
-                            ${this.userData.header?.location ? `<span>${this.userData.header.location}</span>` : ''}
-                            ${this.userData.header?.linkedin ? `<span>${this.userData.header.linkedin}</span>` : ''}
+                        <h2 class="cv-title" style="color: var(--text-secondary, #666);">
+                            ${this.userData.header?.title || 'Your Title'}
+                        </h2>
+                        <div class="cv-contact" style="justify-content: ${headerAlign === 'center' ? 'center' : 'flex-start'};">
+                            ${this.userData.header?.email ? `<span><i class="fas fa-envelope"></i> ${this.userData.header.email}</span>` : ''}
+                            ${this.userData.header?.phone ? `<span><i class="fas fa-phone"></i> ${this.userData.header.phone}</span>` : ''}
+                            ${this.userData.header?.location ? `<span><i class="fas fa-map-marker-alt"></i> ${this.userData.header.location}</span>` : ''}
+                            ${this.userData.header?.linkedin ? `<span><i class="fab fa-linkedin"></i> ${this.userData.header.linkedin}</span>` : ''}
                         </div>
                     </div>
                 ` : ''}
                 
                 <!-- Summary -->
                 ${this.userData.summary ? `
-                    <div class="cv-section">
-                        <h3 class="section-title" style="color: ${colors.primary};">Professional Summary</h3>
+                    <div class="cv-section cv-section-${templateStyles.sectionStyle || 'standard'}">
+                        <h3 class="section-title" style="color: ${colors.primary}; border-bottom-color: ${templateStyles.sectionStyle === 'minimal' ? '#eee' : colors.primary};">
+                            ${templateStyles.sectionStyle === 'creative' ? '<i class="fas fa-user"></i> ' : ''}
+                            Professional Summary
+                        </h3>
                         <div class="section-content">
-                            <p>${this.userData.summary?.text || ''}</p>
+                            <p style="line-height: 1.6;">${this.userData.summary?.text || ''}</p>
                         </div>
                     </div>
                 ` : ''}
                 
                 <!-- Experience -->
                 ${this.userData.experience ? `
-                    <div class="cv-section">
-                        <h3 class="section-title" style="color: ${colors.primary};">Work Experience</h3>
+                    <div class="cv-section cv-section-${templateStyles.sectionStyle || 'standard'}">
+                        <h3 class="section-title" style="color: ${colors.primary}; border-bottom-color: ${templateStyles.sectionStyle === 'minimal' ? '#eee' : colors.primary};">
+                            ${templateStyles.sectionStyle === 'creative' ? '<i class="fas fa-briefcase"></i> ' : ''}
+                            Work Experience
+                        </h3>
                         <div class="section-content">
-                            ${this.userData.experience.items?.map(exp => `
+                            ${this.getExperienceItems().map(exp => `
                                 <div class="experience-item">
                                     <h4>${exp.title || 'Job Title'}</h4>
                                     <p class="company">${exp.company || 'Company'} | ${exp.duration || 'Duration'}</p>
                                     <p class="description">${exp.description || ''}</p>
                                 </div>
-                            `).join('') || ''}
+                            `).join('')}
                         </div>
                     </div>
                 ` : ''}
                 
                 <!-- Education -->
                 ${this.userData.education ? `
-                    <div class="cv-section">
-                        <h3 class="section-title" style="color: ${colors.primary};">Education</h3>
+                    <div class="cv-section cv-section-${templateStyles.sectionStyle || 'standard'}">
+                        <h3 class="section-title" style="color: ${colors.primary}; border-bottom-color: ${templateStyles.sectionStyle === 'minimal' ? '#eee' : colors.primary};">
+                            ${templateStyles.sectionStyle === 'creative' ? '<i class="fas fa-graduation-cap"></i> ' : ''}
+                            Education
+                        </h3>
                         <div class="section-content">
-                            ${this.userData.education.items?.map(edu => `
+                            ${this.getEducationItems().map(edu => `
                                 <div class="education-item">
                                     <h4>${edu.degree || 'Degree'}</h4>
                                     <p class="institution">${edu.institution || 'Institution'} | ${edu.year || 'Year'}</p>
                                     <p class="details">${edu.details || ''}</p>
                                 </div>
-                            `).join('') || ''}
+                            `).join('')}
                         </div>
                     </div>
                 ` : ''}
                 
                 <!-- Skills -->
                 ${this.userData.skills ? `
-                    <div class="cv-section">
-                        <h3 class="section-title" style="color: ${colors.primary};">Skills</h3>
+                    <div class="cv-section cv-section-${templateStyles.sectionStyle || 'standard'}">
+                        <h3 class="section-title" style="color: ${colors.primary}; border-bottom-color: ${templateStyles.sectionStyle === 'minimal' ? '#eee' : colors.primary};">
+                            ${templateStyles.sectionStyle === 'creative' ? '<i class="fas fa-code"></i> ' : ''}
+                            Skills
+                        </h3>
                         <div class="section-content">
                             <div class="skill-tags">
                                 ${this.userData.skills.items?.map(skill => `
@@ -323,32 +487,123 @@ class CVBuilder {
     }
     
     downloadPDF() {
-        // Simple PDF download using print functionality
         const cvContent = document.getElementById('cvPreview');
         if (!cvContent) {
-            alert('CV preview not found. Please fill in your CV details first.');
+            this.showNotification('CV preview not found. Please fill in your CV details first.', 'error');
             return;
         }
         
+        // Get CV styles
+        const styles = Array.from(document.styleSheets)
+            .map(sheet => {
+                try {
+                    return Array.from(sheet.cssRules)
+                        .map(rule => rule.cssText)
+                        .join('\n');
+                } catch (e) {
+                    return '';
+                }
+            })
+            .join('\n');
+        
         // Create a new window with CV content
         const printWindow = window.open('', '_blank');
-        printWindow.document.write(`
+        const cvHTML = `
             <!DOCTYPE html>
             <html>
             <head>
                 <title>CV - ${this.userData.header?.name || 'Resume'}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; padding: 20px; }
-                    ${document.querySelector('style')?.innerHTML || ''}
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { 
+                        font-family: Arial, sans-serif; 
+                        padding: 40px;
+                        background: white;
+                        color: #333;
+                    }
+                    .cv-template { max-width: 800px; margin: 0 auto; }
+                    .cv-header { 
+                        border-bottom: 3px solid #4A00E0; 
+                        padding-bottom: 20px; 
+                        margin-bottom: 30px; 
+                    }
+                    .cv-name { 
+                        font-size: 32px; 
+                        font-weight: bold; 
+                        margin-bottom: 5px; 
+                        color: #4A00E0;
+                    }
+                    .cv-title { 
+                        font-size: 18px; 
+                        color: #666; 
+                        margin-bottom: 15px; 
+                    }
+                    .cv-contact { 
+                        display: flex; 
+                        flex-wrap: wrap; 
+                        gap: 15px; 
+                        font-size: 14px; 
+                        color: #666; 
+                    }
+                    .cv-section { 
+                        margin-bottom: 30px; 
+                    }
+                    .section-title { 
+                        font-size: 20px; 
+                        font-weight: bold; 
+                        margin-bottom: 15px; 
+                        color: #4A00E0;
+                        border-bottom: 2px solid #eee;
+                        padding-bottom: 5px;
+                    }
+                    .experience-item, .education-item { 
+                        margin-bottom: 20px; 
+                    }
+                    .experience-item h4, .education-item h4 { 
+                        font-size: 16px; 
+                        font-weight: bold; 
+                        margin-bottom: 5px; 
+                    }
+                    .company, .institution { 
+                        color: #666; 
+                        font-size: 14px; 
+                        margin-bottom: 8px; 
+                    }
+                    .description { 
+                        margin-top: 8px; 
+                        line-height: 1.6; 
+                    }
+                    .skill-tags { 
+                        display: flex; 
+                        flex-wrap: wrap; 
+                        gap: 8px; 
+                    }
+                    .skill-tag { 
+                        background: #4A00E0; 
+                        color: white; 
+                        padding: 5px 12px; 
+                        border-radius: 15px; 
+                        font-size: 14px; 
+                    }
+                    @media print {
+                        body { padding: 0; }
+                        .cv-template { max-width: 100%; }
+                    }
                 </style>
             </head>
             <body>
                 ${cvContent.innerHTML}
             </body>
             </html>
-        `);
+        `;
+        
+        printWindow.document.write(cvHTML);
         printWindow.document.close();
-        printWindow.print();
+        
+        // Wait for content to load, then print
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
     }
     
     downloadDOCX() {
@@ -444,13 +699,19 @@ class CVBuilder {
             totalFields += inputs.length;
             
             inputs.forEach(input => {
-                if (input.value.trim()) {
+                if (input.value && input.value.trim()) {
                     filledFields++;
                 }
             });
         });
         
-        const progress = Math.round((filledFields / totalFields) * 100);
+        // Also count skills
+        if (this.userData.skills?.items?.length > 0) {
+            filledFields += Math.min(this.userData.skills.items.length, 1);
+            totalFields += 1;
+        }
+        
+        const progress = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
         document.querySelectorAll('.progress-percent').forEach(el => {
             el.textContent = `${progress}%`;
         });
@@ -487,13 +748,6 @@ class CVBuilder {
                 color1: '#00b894',
                 color2: '#00cec9',
                 category: 'minimalist'
-            },
-            {
-                id: 4,
-                name: 'Executive',
-                color1: '#2d3436',
-                color2: '#636e72',
-                category: 'executive'
             }
         ];
     }
@@ -559,6 +813,55 @@ class CVBuilder {
     
     getTemplate(id) {
         return this.templates.find(t => t.id === id) || this.templates[0];
+    }
+    
+    getExperienceItems() {
+        if (this.userData.experience?.items) {
+            return this.userData.experience.items;
+        }
+        
+        // Fallback: build from form fields
+        const items = [];
+        const inputs = document.querySelectorAll('[data-field="experience"]');
+        const titles = Array.from(inputs).filter(i => i.name.startsWith('title'));
+        
+        titles.forEach((titleInput, index) => {
+            const num = index + 1;
+            const title = titleInput.value || document.querySelector(`[data-field="experience"][name="title${num}"]`)?.value;
+            const company = document.querySelector(`[data-field="experience"][name="company${num}"]`)?.value;
+            const duration = document.querySelector(`[data-field="experience"][name="duration${num}"]`)?.value;
+            const description = document.querySelector(`[data-field="experience"][name="description${num}"]`)?.value;
+            
+            if (title || company) {
+                items.push({ title, company, duration, description });
+            }
+        });
+        
+        return items.length > 0 ? items : [{ title: '', company: '', duration: '', description: '' }];
+    }
+    
+    getEducationItems() {
+        if (this.userData.education?.items) {
+            return this.userData.education.items;
+        }
+        
+        // Fallback: build from form fields
+        const items = [];
+        const inputs = document.querySelectorAll('[data-field="education"]');
+        const degrees = Array.from(inputs).filter(i => i.name.startsWith('degree'));
+        
+        degrees.forEach((degreeInput, index) => {
+            const num = index + 1;
+            const degree = degreeInput.value || document.querySelector(`[data-field="education"][name="degree${num}"]`)?.value;
+            const institution = document.querySelector(`[data-field="education"][name="institution${num}"]`)?.value;
+            const year = document.querySelector(`[data-field="education"][name="year${num}"]`)?.value;
+            
+            if (degree || institution) {
+                items.push({ degree, institution, year });
+            }
+        });
+        
+        return items.length > 0 ? items : [{ degree: '', institution: '', year: '' }];
     }
     
     getSectionHTML(section) {

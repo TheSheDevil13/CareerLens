@@ -441,6 +441,142 @@ h1, h2, h3, h4, h5, h6 {
     30% { transform: translateY(-10px); }
 }
 
+/* AI Chat Enhanced Styles */
+.ai-suggestions {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.career-path-suggestion {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.career-path-suggestion h6 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.path-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.path-details small {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.skill-recommendations {
+    margin-top: 1rem;
+}
+
+.skill-recommendation {
+    transition: transform 0.2s;
+}
+
+.skill-recommendation:hover {
+    transform: translateX(5px);
+}
+
+.job-suggestions {
+    margin-top: 1rem;
+}
+
+.job-suggestion {
+    transition: transform 0.2s;
+}
+
+.job-suggestion:hover {
+    transform: translateX(5px);
+}
+
+.course-recommendations {
+    margin-top: 1rem;
+}
+
+.course-rec {
+    transition: transform 0.2s;
+}
+
+.course-rec:hover {
+    transform: translateX(5px);
+}
+
+.ai-tips .tip {
+    transition: transform 0.2s;
+}
+
+.ai-tips .tip:hover {
+    transform: translateX(5px);
+}
+
+.ai-help-list {
+    margin-top: 1rem;
+}
+
+.help-item {
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.interview-questions {
+    margin-top: 1rem;
+}
+
+.question-item {
+    transition: transform 0.2s;
+}
+
+.question-item:hover {
+    transform: translateX(5px);
+}
+
+.interview-tips {
+    margin-top: 1rem;
+}
+
+.ai-link {
+    color: white;
+    text-decoration: underline;
+    transition: opacity 0.2s;
+}
+
+.ai-link:hover {
+    opacity: 0.8;
+    color: white;
+}
+
+.ai-action {
+    margin-top: 1rem;
+}
+
+.salary-estimate {
+    text-align: center;
+}
+
+.salary-factors,
+.salary-tips {
+    text-align: left;
+}
+
+.salary-factors ul,
+.salary-tips ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.salary-factors li,
+.salary-tips li {
+    margin-bottom: 0.5rem;
+}
+
 /* Department Cards - 3D Effect */
 .department-card-3d {
     perspective: 1000px;

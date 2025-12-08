@@ -38,8 +38,6 @@ function createStandardNavigation(currentPage = '') {
             id: 'tools',
             dropdown: [
                 { text: 'Salary Estimator', href: `${basePath}pages/salary-estimator.html` },
-                { text: 'Interview Prep', href: `${basePath}pages/interview-prep.html` },
-                { text: 'Skill Assessment', href: `${basePath}pages/skill-assessment.html` },
                 { text: 'CV Builder', href: `${basePath}pages/cv-builder.html` }
             ]
         },

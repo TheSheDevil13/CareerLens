@@ -25,15 +25,24 @@ class SalaryEstimator {
         const deptSelect = document.getElementById('departmentSelect');
         const careerSelect = document.getElementById('careerPathSelect');
         
-        // Populate departments
-        const departments = ['CSE', 'EE', 'ME', 'CE', 'Finance', 'Marketing', 'Healthcare'];
-        
-        departments.forEach(dept => {
-            const option = document.createElement('option');
-            option.value = dept;
-            option.textContent = dept;
-            deptSelect.appendChild(option);
-        });
+        // Only populate if not already populated (avoid duplicates)
+        if (deptSelect.options.length <= 1) {
+            const departments = [
+                { value: 'CSE', text: 'Computer Science & Engineering' },
+                { value: 'EE', text: 'Electrical Engineering' },
+                { value: 'ME', text: 'Mechanical Engineering' },
+                { value: 'CE', text: 'Civil Engineering' },
+                { value: 'Finance', text: 'Finance' },
+                { value: 'Marketing', text: 'Marketing' }
+            ];
+            
+            departments.forEach(dept => {
+                const option = document.createElement('option');
+                option.value = dept.value;
+                option.textContent = dept.text;
+                deptSelect.appendChild(option);
+            });
+        }
         
         // Department change handler
         deptSelect.addEventListener('change', (e) => {
@@ -72,22 +81,37 @@ class SalaryEstimator {
                 { id: 'backend', name: 'Backend Developer' },
                 { id: 'fullstack', name: 'Full Stack Developer' },
                 { id: 'data-scientist', name: 'Data Scientist' },
-                { id: 'devops', name: 'DevOps Engineer' }
+                { id: 'devops', name: 'DevOps Engineer' },
+                { id: 'mobile', name: 'Mobile Developer' },
+                { id: 'qa', name: 'QA Engineer' }
             ],
             'EE': [
                 { id: 'power', name: 'Power Systems Engineer' },
                 { id: 'electronics', name: 'Electronics Engineer' },
-                { id: 'control', name: 'Control Systems Engineer' }
+                { id: 'control', name: 'Control Systems Engineer' },
+                { id: 'embedded', name: 'Embedded Systems Engineer' }
+            ],
+            'ME': [
+                { id: 'design', name: 'Mechanical Design Engineer' },
+                { id: 'manufacturing', name: 'Manufacturing Engineer' },
+                { id: 'automotive', name: 'Automotive Engineer' }
+            ],
+            'CE': [
+                { id: 'structural', name: 'Structural Engineer' },
+                { id: 'construction', name: 'Construction Engineer' },
+                { id: 'environmental', name: 'Environmental Engineer' }
             ],
             'Finance': [
                 { id: 'financial-analyst', name: 'Financial Analyst' },
                 { id: 'investment-banker', name: 'Investment Banker' },
-                { id: 'accountant', name: 'Accountant' }
+                { id: 'accountant', name: 'Accountant' },
+                { id: 'risk-analyst', name: 'Risk Analyst' }
             ],
             'Marketing': [
                 { id: 'marketing-manager', name: 'Marketing Manager' },
                 { id: 'digital-marketing', name: 'Digital Marketing Specialist' },
-                { id: 'brand-manager', name: 'Brand Manager' }
+                { id: 'brand-manager', name: 'Brand Manager' },
+                { id: 'content-marketing', name: 'Content Marketing Specialist' }
             ]
         };
         
@@ -112,12 +136,25 @@ class SalaryEstimator {
         // Skill selection handler
         container.querySelectorAll('.skill-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', (e) => {
-                const skill = e.target.id.replace('skill-', '').replace('-', ' ');
+                // Get skill name from data attribute or label
+                const skillOption = e.target.closest('.skill-option');
+                const skill = skillOption?.dataset.skill || e.target.id.replace('skill-', '').replace(/-/g, ' ');
+                
                 if (e.target.checked) {
-                    this.userInput.skills.push(skill);
+                    if (!this.userInput.skills.includes(skill)) {
+                        this.userInput.skills.push(skill);
+                    }
                 } else {
                     this.userInput.skills = this.userInput.skills.filter(s => s !== skill);
                 }
+                
+                // Limit to 5 skills
+                if (this.userInput.skills.length > 5) {
+                    this.userInput.skills = this.userInput.skills.slice(0, 5);
+                    this.showNotification('Maximum 5 skills selected. Please deselect one to add another.', 'info');
+                    checkbox.checked = false;
+                }
+                
                 this.updateSalaryEstimate();
             });
         });
@@ -242,7 +279,7 @@ class SalaryEstimator {
     
     calculateSalary() {
         if (!this.userInput.department || !this.userInput.careerPath) {
-            alert('Please select a department and career path first.');
+            this.showNotification('Please select a department and career path first.', 'error');
             return;
         }
         
@@ -251,7 +288,7 @@ class SalaryEstimator {
         const experienceMultiplier = this.getExperienceMultiplier();
         const skillBonus = this.getSkillBonus();
         
-        const adjustedSalary = baseSalary * locationMultiplier * experienceMultiplier + skillBonus;
+        const adjustedSalary = Math.round(baseSalary * locationMultiplier * experienceMultiplier + skillBonus);
         
         this.displaySalary(adjustedSalary);
         this.updateCharts(adjustedSalary);
@@ -260,19 +297,33 @@ class SalaryEstimator {
     }
     
     getBaseSalary() {
-        // Base salaries by career path
+        // Base salaries by career path (entry level)
         const baseSalaries = {
             'frontend': 75000,
             'backend': 80000,
             'fullstack': 85000,
             'data-scientist': 90000,
             'devops': 85000,
+            'mobile': 78000,
+            'qa': 70000,
             'power': 70000,
             'electronics': 72000,
             'control': 75000,
-            'finance': 65000,
-            'marketing': 60000,
-            'hr': 58000
+            'embedded': 76000,
+            'design': 68000,
+            'manufacturing': 65000,
+            'automotive': 70000,
+            'structural': 72000,
+            'construction': 65000,
+            'environmental': 68000,
+            'financial-analyst': 65000,
+            'investment-banker': 85000,
+            'accountant': 60000,
+            'risk-analyst': 70000,
+            'marketing-manager': 70000,
+            'digital-marketing': 60000,
+            'brand-manager': 75000,
+            'content-marketing': 58000
         };
         
         return baseSalaries[this.userInput.careerPath] || 70000;
@@ -308,15 +359,32 @@ class SalaryEstimator {
             'React': 4000,
             'Node.js': 4000,
             'Python': 3000,
+            'Java': 3500,
+            'SQL': 2500,
             'AWS': 6000,
             'Docker': 4000,
-            'Machine Learning': 7000
+            'Kubernetes': 5000,
+            'Git': 2000,
+            'HTML/CSS': 2000,
+            'TypeScript': 4500,
+            'Machine Learning': 7000,
+            'Data Analysis': 4000,
+            'UI/UX Design': 3500
         };
         
         let totalBonus = 0;
         this.userInput.skills.forEach(skill => {
+            // Try exact match first
             if (skillBonuses[skill]) {
                 totalBonus += skillBonuses[skill];
+            } else {
+                // Try case-insensitive match
+                const matchedKey = Object.keys(skillBonuses).find(
+                    key => key.toLowerCase() === skill.toLowerCase()
+                );
+                if (matchedKey) {
+                    totalBonus += skillBonuses[matchedKey];
+                }
             }
         });
         
@@ -474,6 +542,34 @@ class SalaryEstimator {
                 }
             }
         };
+    }
+    
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `salary-notification notification-${type}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span style="margin-left: 0.5rem;">${message}</span>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
     }
 }
 

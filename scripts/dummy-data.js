@@ -570,11 +570,6 @@ const cvTemplates = [
         name: "Creative Minimalist",
         color: "#00b894"
     },
-    {
-        id: 3,
-        name: "Executive Suite",
-        color: "#2d3436"
-    }
 ];
 
 // 7. Community Posts
