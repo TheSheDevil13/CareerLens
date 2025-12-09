@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Estimator - Career Lens</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <style>
+        .salary-estimator-page {
+            position: relative;
+            z-index: 1;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px var(--shadow-color);
+        }
+        .form-label {
+            font-weight: 600;
+        }
+        .skill-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+        .salary-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .factor,
+        .tip {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .factor.positive { border-left: 4px solid #28a745; }
+        .factor.neutral { border-left: 4px solid #17a2b8; }
+        .factor.negative { border-left: 4px solid #dc3545; }
+        .salary-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .breakdown-card {
+            padding: 12px;
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="salary-estimator-page page-container">
+        <div class="container py-5">
+            <div class="page-header text-center mb-5">
+                <h1 class="display-4 gradient-text">Salary Estimator</h1>
+                <p class="lead">Forecast your earning potential by role, location, and skills</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Input Panel -->
+                <div class="col-lg-4">
+                    <div class="glass-card p-4 h-100">
+                        <h5 class="mb-3">Your Profile</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <select id="departmentSelect" class="form-select">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Career Path</label>
+                            <select id="careerPathSelect" class="form-select">
+                                <option value="">Select Career Path</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Experience Level</label>
+                            <select id="experienceSelect" class="form-select">
+                                <option value="entry">Entry Level (0-2 yrs)</option>
+                                <option value="mid">Mid Level (3-6 yrs)</option>
+                                <option value="senior">Senior (7+ yrs)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Location Preference</label>
+                            <select id="locationSelect" class="form-select">
+                                <option value="remote">Remote</option>
+                                <option value="us">United States</option>
+                                <option value="canada">Canada</option>
+                                <option value="europe">Europe</option>
+                                <option value="asia">Asia</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Top Skills (pick up to 5)</label>
+                            <div id="skillsSelector" class="skills-grid">
+                                <!-- Filled by script -->
+                            </div>
+                        </div>
+
+                        <button id="calculateSalary" class="btn btn-gradient w-100">
+                            <i class="fas fa-calculator me-2"></i>Calculate Estimate
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="col-lg-8">
+                    <div class="glass-card p-4 h-100">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-3">
+                            <div>
+                                <p class="text-muted mb-1">Estimated Base Salary</p>
+                                <p id="salaryAmount" class="salary-number">$0</p>
+                            </div>
+                            <div class="text-md-end">
+                                <span class="badge bg-primary">Live estimate</span>
+                                <p class="mb-0 text-muted">Based on your selections</p>
+                            </div>
+                        </div>
+
+                        <div class="salary-breakdown mb-4">
+                            <div class="breakdown-card">
+                                <p class="text-muted mb-1">Base</p>
+                                <strong id="baseSalary">$0</strong>
+                            </div>
+                            <div class="breakdown-card">
+                                <p class="text-muted mb-1">Bonus (est.)</p>
+                                <strong id="bonusAmount">$0</strong>
+                            </div>
+                            <div class="breakdown-card">
+                                <p class="text-muted mb-1">Total Comp</p>
+                                <strong id="totalCompensation">$0</strong>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="glass-card p-3 h-100">
+                                    <h6 class="mb-3">Market Comparison</h6>
+                                    <canvas id="marketChart" height="200"></canvas>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="glass-card p-3 h-100">
+                                    <h6 class="mb-3">5-Year Growth</h6>
+                                    <canvas id="growthChart" height="200"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Key Factors</h6>
+                                <div class="factors-list d-flex flex-column gap-2">
+                                    <!-- Factors injected by script -->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-3">Negotiation Tips</h6>
+                                <div class="tips-list d-flex flex-column gap-2">
+                                    <!-- Tips injected by script -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button id="themeToggle" class="btn btn-sm">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../scripts/navigation.js"></script>
+    <script src="../scripts/theme-manager.js"></script>
+    <script src="../scripts/dummy-data.js"></script>
+    <script src="../scripts/salary-estimator.js"></script>
+</body>
+</html>
+
